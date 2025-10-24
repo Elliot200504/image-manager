@@ -9,7 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($input['action']) && $input['action'] === 'rename' && isset($input['Bild_ID'], $input['filename'])) {
         foreach ($images as &$img) {
             if ($img['Bild_ID'] === $input['Bild_ID']) {
-                $img['filename'] = $input['filename'];
+                $img['filename'] = $input['filename']; // Only update filename
+                // $img['source'] stays the same!
                 break;
             }
         }
@@ -19,7 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (is_array($input) && isset($input[0]['Bild_ID'])) {
-        file_put_contents($jsonPath, json_encode($input, JSON_PRETTY_PRINT));
+        // $input is the new order array from JS
+        $newImages = [];
+        foreach ($input as $newImg) {
+            foreach ($images as $oldImg) {
+                if ($oldImg['Bild_ID'] === $newImg['Bild_ID']) {
+                    $newImg['source'] = $oldImg['source']; // preserve source
+                    // add any other fields you need to preserve
+                    break;
+                }
+            }
+            $newImages[] = $newImg;
+        }
+        file_put_contents($jsonPath, json_encode($newImages, JSON_PRETTY_PRINT));
         echo json_encode(['success' => true]);
         exit;
     }
