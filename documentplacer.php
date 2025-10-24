@@ -27,22 +27,46 @@ if (file_exists(__DIR__ . '/documents.json')) {
 <div class="ui styled fluid accordion" id="imageAccordion">
     <div class="title">
         <i class="dropdown icon"></i>
-        <span style="font-size:1.2em;font-weight:bold;">Bilder (<?= count($images) ?>)</span>
+        <span style="font-size:1.2em;font-weight:bold;">Bilder/Dokument (<?= count($images) ?>)</span>
     </div>
     <div class="content">
         <div class="ui segment">
-            <div class="image-grid" id="imageGrid">
-            <?php foreach ($images as $idx => $img): ?>
-                <div class="image-item" draggable="true"
-                     data-bild-id="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
-                     data-order="<?= htmlspecialchars($img['order'] ?? ($idx + 1)) ?>">
-                    <div class="order-badge"><?= htmlspecialchars($img['order'] ?? ($idx + 1)) ?></div>
-                    <img src="uploads/<?= htmlspecialchars($img['filename']) ?>"
-                         alt="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
-                         data-gallery-index="<?= $idx ?>">
-                </div>
-            <?php endforeach; ?>
-            </div>
+            <table class="ui very basic unstackable table image-table">
+                <tbody id="imageTableBody">
+<?php foreach ($images as $idx => $img): ?>
+    <tr class="image-row" draggable="true"
+        data-bild-id="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
+        data-order="<?= htmlspecialchars($img['order'] ?? ($idx + 1)) ?>">
+        <td style="width:40px;">
+            <div class="order-square"><?= $idx + 1 ?></div>
+        </td>
+        <td style="width:72px;">
+            <img src="uploads/<?= htmlspecialchars($img['filename']) ?>"
+                 alt="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild') ?>"
+                 class="table-thumb"
+                 data-gallery-index="<?= $idx ?>">
+        </td>
+        <td>
+            <span class="filename"><?= htmlspecialchars($img['filename']) ?></span>
+        </td>
+        <td class="actions">
+            <a href="uploads/<?= htmlspecialchars($img['filename']) ?>" download title="Ladda ner">
+                <i class="download icon"></i>
+            </a>
+            <button class="ui icon button rotate-btn" title="Rotera">
+                <i class="sync alternate icon"></i>
+            </button>
+            <button class="ui icon button edit-btn" title="Redigera">
+                <i class="edit icon"></i>
+            </button>
+            <button class="ui icon button delete-btn" title="Ta bort">
+                <i class="trash alternate outline icon"></i>
+            </button>
+        </td>
+    </tr>
+<?php endforeach; ?>
+</tbody>
+            </table>
         </div>
     </div>
 </div>
