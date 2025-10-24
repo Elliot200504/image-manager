@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="ui container" style="margin-top:2em;">
-        <!-- php include 'documentupload.php'; -->
+        <?php include 'documentupload.php';?>
         <?php include 'documentplacer.php'; ?>
     </div>
 </body>
