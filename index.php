@@ -13,8 +13,7 @@
 </head>
 <body>
     <div class="ui container" style="margin-top:2em;">
-        <h1 class="ui header">Bild Manager</h1>
-        <?php include 'documentupload.php'; ?>
+        <!-- php include 'documentupload.php'; -->
         <?php include 'documentplacer.php'; ?>
     </div>
 </body>
