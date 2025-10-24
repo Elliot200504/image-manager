@@ -9,8 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($input['action']) && $input['action'] === 'rename' && isset($input['Bild_ID'], $input['filename'])) {
         foreach ($images as &$img) {
             if ($img['Bild_ID'] === $input['Bild_ID']) {
-                $img['filename'] = $input['filename']; // Only update filename
-                // $img['source'] stays the same!
+                $img['filename'] = $input['filename'];
                 break;
             }
         }
@@ -25,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($input as $newImg) {
             foreach ($images as $oldImg) {
                 if ($oldImg['Bild_ID'] === $newImg['Bild_ID']) {
-                    $newImg['source'] = $oldImg['source']; // preserve source
-                    // add any other fields you need to preserve
+                    $newImg['source'] = $oldImg['source']; 
+
                     break;
                 }
             }
