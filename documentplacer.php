@@ -27,7 +27,7 @@ if (file_exists(__DIR__ . '/documents.json')) {
 <div class="ui styled fluid accordion" id="imageAccordion">
     <div class="title">
         <i class="dropdown icon"></i>
-        <span style="font-size:1.2em;font-weight:bold;">Bilder (<?= count($images) ?>)</span>
+        <span style="font-size:1.2em;font-weight:bold;">Your Images (<?= count($images) ?>)</span>
     </div>
     <div class="content">
         <div class="ui segment">
@@ -39,27 +39,31 @@ if (file_exists(__DIR__ . '/documents.json')) {
                     <div class="order-badge"><?= htmlspecialchars($img['order'] ?? ($idx + 1)) ?></div>
                     <img src="uploads/<?= htmlspecialchars($img['filename']) ?>"
                          alt="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
-                         onclick="openImageModal('uploads/<?= htmlspecialchars($img['filename']) ?>')">
+                         data-gallery-index="<?= $idx ?>">
                 </div>
             <?php endforeach; ?>
             </div>
         </div>
     </div>
 </div>
-<div class="ui modal" id="imageModal">
-    <i style="color:black; background-color: white;" class="inside close icon"></i>
-    <div class="image content">
-        <img id="modalImg" src="" style="width:100%;">
-    </div>
-</div>
 <script>
 $(document).ready(function() {
     $('#imageAccordion').accordion({ exclusive: false });
+
+    // Collect all image sources for the gallery
+    const images = [];
+    $('#imageGrid img').each(function() {
+        images.push($(this).attr('src'));
+    });
+
+    // Open gallery on image click
+    $('#imageGrid img').on('click', function() {
+        const idx = Number($(this).attr('data-gallery-index'));
+        if (window.imageGallery) {
+            window.imageGallery.open(images, idx);
+        }
+    });
 });
-function openImageModal(src) {
-    document.getElementById('modalImg').src = src;
-    $('#imageModal').modal('show');
-}
 </script>
 <?php else: ?>
 <div class="ui warning message">
