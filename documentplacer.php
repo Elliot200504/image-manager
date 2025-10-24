@@ -54,13 +54,13 @@ if (file_exists(__DIR__ . '/documents.json')) {
                 <i class="download icon"></i>
             </a>
             <button class="ui icon button rotate-btn" title="Rotera">
-                <i class="sync alternate icon"></i>
+                <i class="undo icon"></i>
             </button>
             <button class="ui icon button edit-btn" title="Redigera">
-                <i class="edit icon"></i>
+                <i class="pencil alternate icon"></i>
             </button>
             <button class="ui icon button delete-btn" title="Ta bort">
-                <i class="trash alternate outline icon"></i>
+                <i class="trash icon"></i>
             </button>
         </td>
     </tr>
