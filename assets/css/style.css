@@ -21,15 +21,6 @@ body,
     color: #222 !important;
 }
 
-.ui.button,
-.ui.primary.button {
-    background: #ededed !important;
-    color: #222 !important;
-    border-radius: 8px !important;
-    box-shadow: none !important;
-    border: 1px solid #ddd !important;
-}
-
 .ui.warning.message {
     background: #fff !important;
     color: #ffcc00 !important;
@@ -49,22 +40,15 @@ body,
     vertical-align: middle !important;
 }
 .table-thumb {
-    width: 150px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    cursor: pointer;
-    background: #fff;
-    transition: box-shadow 0.2s;
-    display: block;
-    max-height: 100%;
+    width: 126px;
+    height: 100%;
+    font-size: 0.8em;
 }
 .table-thumb:hover {
     box-shadow: 0 4px 16px #b4ddfc;
 }
 .filename {
-    font-size: 1.1em;
+    font-size: 1em;
     color: #222;
     font-weight: 500;
 }
@@ -73,20 +57,25 @@ body,
 }
 .actions .ui.icon.button,
 .actions a {
-    background: #ededed !important;
+    background: transparent !important;
     color: #222 !important;
     margin-right: 8px;
-    border-radius: 6px !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     border: none !important;
-    transition: background 0.2s;
-    padding: 8px !important;
-    font-size: 1.1em !important;
+    padding: 0 !important;
+    font-size: 1.3em !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    min-width: unset !important;
+    min-height: unset !important;
 }
 .actions .ui.icon.button:hover,
 .actions a:hover {
-    background: #e0e0e0 !important;
-    color: #222 !important;
+    background: transparent !important;
+    color: #2185d0 !important;
 }
 
 .actions .ui.icon.button,
@@ -104,16 +93,15 @@ body,
 }
 
 .order-square {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.9em;
     background: #ededed;
     color: #222;
-    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 1.1em;
     margin: auto;
     border: 1px solid #ddd;
 }
