@@ -27,7 +27,7 @@ if (file_exists(__DIR__ . '/documents.json')) {
 <div class="ui styled fluid accordion" id="imageAccordion">
     <div class="title">
         <i class="dropdown icon"></i>
-        <span style="font-size:1.2em;font-weight:bold;">Your Images (<?= count($images) ?>)</span>
+        <span style="font-size:1.2em;font-weight:bold;">Bilder (<?= count($images) ?>)</span>
     </div>
     <div class="content">
         <div class="ui segment">

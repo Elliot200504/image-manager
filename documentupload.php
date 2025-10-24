@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
 ?>
 <form class="ui form" method="post" enctype="multipart/form-data" style="margin-bottom:2em;">
     <div class="field">
-        <label>Select Image</label>
+        <label>Välj fil</label>
         <input type="file" name="image" accept="image/*" required>
     </div>
-    <button class="ui primary button" type="submit">Upload</button>
+    <button class="ui primary button" type="submit">Ladda upp</button>
 </form>
