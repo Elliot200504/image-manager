@@ -76,12 +76,10 @@ $(document).ready(function() {
 
     // Collect all image sources for the gallery
     const images = [];
-    $('#imageGrid img').each(function() {
+    $('.table-thumb').each(function() {
         images.push($(this).attr('src'));
     });
-
-    // Open gallery on image click
-    $('#imageGrid img').on('click', function() {
+    $('.table-thumb').on('click', function() {
         const idx = Number($(this).attr('data-gallery-index'));
         if (window.imageGallery) {
             window.imageGallery.open(images, idx);
@@ -92,6 +90,6 @@ $(document).ready(function() {
 <?php else: ?>
 <div class="ui warning message">
     <i class="photo icon"></i>
-    No images uploaded.
+    Inga bilder eller dokument har laddats upp än.
 </div>
 <?php endif; ?>
