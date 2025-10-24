@@ -85,6 +85,8 @@ $(document).ready(function() {
             window.imageGallery.open(images, idx);
         }
     });
+
+    // TODO: Add handlers for rotate, edit, delete as needed
 });
 </script>
 <?php else: ?>
