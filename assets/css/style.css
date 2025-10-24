@@ -11,7 +11,6 @@ body,
 
 .ui.segment {
     background: #fff !important;
-    border-radius: 12px !important;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
 }
 
@@ -41,8 +40,12 @@ body,
 }
 .table-thumb {
     width: 126px;
-    height: 100%;
+    height: 80px;
+    max-height: 100%;
+    object-fit: cover;
     font-size: 0.8em;
+    display: block;
+    background: #fff;
 }
 .table-thumb:hover {
     box-shadow: 0 4px 16px #b4ddfc;
@@ -52,30 +55,39 @@ body,
     color: #222;
     font-weight: 500;
 }
+.filename-link {
+    color: #2185d0 !important;
+    font-size: 1.1em !important;
+    text-decoration: underline !important;
+    background: none !important;
+    padding: 0;
+    border-radius: 0;
+    margin-left: 0.5em;
+    word-break: break-all;
+}
 .actions {
-    text-align: right;
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    align-items: flex-start;
 }
 .actions .ui.icon.button,
 .actions a {
+    font-size: 0.95em !important;
+    padding: 0 !important;
+    margin: 0 !important;
     background: transparent !important;
     color: #222 !important;
-    margin-right: 8px;
-    border-radius: 0 !important;
-    box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
-    font-size: 1.3em !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
+    box-shadow: none !important;
     min-width: unset !important;
     min-height: unset !important;
+    line-height: 1;
 }
 .actions .ui.icon.button:hover,
 .actions a:hover {
-    background: transparent !important;
     color: #2185d0 !important;
+    background: transparent !important;
 }
 
 .actions .ui.icon.button,
@@ -95,13 +107,13 @@ body,
 .order-square {
     width: 26px;
     height: 26px;
-    font-size: 0.9em;
     background: #ededed;
     color: #222;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    font-size: 0.9em;
     margin: auto;
     border: 1px solid #ddd;
 }
