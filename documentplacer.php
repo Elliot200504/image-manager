@@ -1,29 +1,35 @@
 <?php
+if (!is_array($images)) $images = [];
+$jsonPath = __DIR__ . '/documents.json';
+$images = file_exists($jsonPath) ? json_decode(file_get_contents($jsonPath), true) : [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (is_array($data) && count($data) > 0) {
-        file_put_contents(__DIR__ . '/documents.json', json_encode($data, JSON_PRETTY_PRINT));
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (isset($input['action']) && $input['action'] === 'rename' && isset($input['Bild_ID'], $input['filename'])) {
+        foreach ($images as &$img) {
+            if ($img['Bild_ID'] === $input['Bild_ID']) {
+                $img['filename'] = $input['filename'];
+                break;
+            }
+        }
+        file_put_contents($jsonPath, json_encode($images, JSON_PRETTY_PRINT));
         echo json_encode(['success' => true]);
         exit;
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+    }
+
+    if (is_array($input) && isset($input[0]['Bild_ID'])) {
+        file_put_contents($jsonPath, json_encode($input, JSON_PRETTY_PRINT));
+        echo json_encode(['success' => true]);
         exit;
     }
-}
 
-$images = [];
-if (file_exists(__DIR__ . '/documents.json')) {
-    $images = json_decode(file_get_contents(__DIR__ . '/documents.json'), true) ?? [];
-    $images = array_filter($images, function($img) {
-        return isset($img['filename']) && $img['filename'] !== '';
-    });
-    usort($images, function($a, $b) {
-        return ($a['order'] ?? 0) <=> ($b['order'] ?? 0);
-    });
+    echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+    exit;
 }
 ?>
 
-<?php if (count($images) > 0): ?>
+<?php if (!empty($images) && is_array($images) && count($images) > 0): ?>
 <div class="ui styled fluid accordion" id="imageAccordion">
     <div class="title">
         <i class="dropdown icon"></i>
@@ -41,17 +47,17 @@ if (file_exists(__DIR__ . '/documents.json')) {
             <div class="order-square"><?= $idx + 1 ?></div>
         </td>
         <td style="width:120px; vertical-align: top;">
-            <img src="uploads/<?= htmlspecialchars($img['filename']) ?>"
-                 alt="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild') ?>"
-                 class="table-thumb"
-                 data-gallery-index="<?= $idx ?>">
+            <img src="uploads/<?= htmlspecialchars($img['source']) ?>"
+     alt="<?= htmlspecialchars($img['filename']) ?>"
+     class="table-thumb"
+     data-gallery-index="<?= $idx ?>">
         </td>
         <td style="vertical-align: top;">
-            <a href="uploads/<?= htmlspecialchars($img['filename']) ?>"
-               class="filename-link"
-               target="_blank">
-                <?= htmlspecialchars($img['filename']) ?>
-            </a>
+            <input type="text"
+                   class="filename-input"
+                   value="<?= htmlspecialchars($img['filename']) ?>"
+                   data-bild-id="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
+                   style="width: 140px; font-size: 0.85em; color: #2185d0; border: 1px solid #ddd; border-radius: 4px; padding: 2px 6px;">
         </td>
         <td class="actions-cell" style="vertical-align: top; text-align: right; position: relative;">
             <div class="actions">
@@ -82,7 +88,6 @@ if (file_exists(__DIR__ . '/documents.json')) {
 $(document).ready(function() {
     $('#imageAccordion').accordion({ exclusive: false });
 
-    // Gallery trigger
     const images = [];
     $('.table-thumb').each(function() {
         images.push($(this).attr('src'));
@@ -91,6 +96,23 @@ $(document).ready(function() {
         const idx = Number($(this).attr('data-gallery-index'));
         if (window.imageGallery) {
             window.imageGallery.open(images, idx);
+        }
+    });
+
+    const tbody = document.getElementById('imageTableBody');
+    tbody.addEventListener('change', function(e) {
+        if (e.target.classList.contains('filename-input')) {
+            const bildId = e.target.getAttribute('data-bild-id');
+            const newFilename = e.target.value.trim();
+            fetch('documentplacer.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'rename', Bild_ID: bildId, filename: newFilename })
+            })
+            .then(res => res.json())
+            .then(json => {
+                if (!json.success) alert('Kunde inte byta namn!');
+            });
         }
     });
 
