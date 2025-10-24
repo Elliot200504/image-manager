@@ -74,7 +74,7 @@ if (file_exists(__DIR__ . '/documents.json')) {
 $(document).ready(function() {
     $('#imageAccordion').accordion({ exclusive: false });
 
-    // Collect all image sources for the gallery
+    // Gallery trigger
     const images = [];
     $('.table-thumb').each(function() {
         images.push($(this).attr('src'));
