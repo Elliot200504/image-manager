@@ -1,58 +1,119 @@
-.image-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-    width: 100%;
-    min-height: 320px; 
-}
-.image-item {
-    position: relative;
-    background: #f9f9f9;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: grab;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    transition: box-shadow 0.2s, opacity 0.2s;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-    height: auto; 
+/* Light theme for accordion and table */
+body,
+.ui.container,
+.ui.segment,
+.ui.accordion,
+.ui.form,
+.ui.header {
+    background: #fff !important;
+    color: #222 !important;
 }
 
-.image-item img {
-    width: 100%;
-    height: 100%;
+.ui.segment {
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+}
+
+.ui.header,
+.ui.accordion .title,
+.ui.accordion .content {
+    color: #222 !important;
+}
+
+.ui.button,
+.ui.primary.button {
+    background: #ededed !important;
+    color: #222 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+}
+
+.ui.warning.message {
+    background: #fff !important;
+    color: #ffcc00 !important;
+    border-left: 4px solid #ffcc00 !important;
+}
+
+/* Table styles */
+.image-table {
+    background: transparent !important;
+    color: #222 !important;
+    border: none !important;
+}
+.image-table th, .image-table td {
+    background: transparent !important;
+    color: #222 !important;
+    border: none !important;
+    vertical-align: middle !important;
+}
+.table-thumb {
+    width: 150px;
+    height: 100px;
     object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    cursor: pointer;
+    background: #fff;
+    transition: box-shadow 0.2s;
     display: block;
-    border-radius: 12px;
+    max-height: 100%;
+}
+.table-thumb:hover {
+    box-shadow: 0 4px 16px #b4ddfc;
+}
+.filename {
+    font-size: 1.1em;
+    color: #222;
+    font-weight: 500;
+}
+.actions {
+    text-align: right;
+}
+.actions .ui.icon.button,
+.actions a {
+    background: #ededed !important;
+    color: #222 !important;
+    margin-right: 8px;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    border: none !important;
+    transition: background 0.2s;
+    padding: 8px !important;
+    font-size: 1.1em !important;
+}
+.actions .ui.icon.button:hover,
+.actions a:hover {
+    background: #e0e0e0 !important;
+    color: #222 !important;
 }
 
-.dragging {
-    opacity: 0.6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.actions .ui.icon.button,
+.actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 
-.order-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: #2185d0;
-    color: #fff;
-    border-radius: 50%;
+.actions .ui.icon.button:last-child,
+.actions a:last-child {
+    margin-right: 0;
+}
+
+.order-square {
     width: 32px;
     height: 32px;
+    background: #ededed;
+    color: #222;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 1.1rem;
-    z-index: 2;
-    box-shadow: 0 1px 4px rgba(33,133,208,0.15);
-}
-.image-item.placeholder {
-    border: 2px dashed #2185d0;
-    background: #eaf6fd;
-    min-height: 100px;
+    font-size: 1.1em;
+    margin: auto;
+    border: 1px solid #ddd;
 }
