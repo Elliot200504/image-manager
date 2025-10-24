@@ -1,18 +1,18 @@
 /* Base Modal */
 #imageGalleryModal.ui.fullscreen.basic.modal {
-  background: rgba(24, 26, 32, 0.5);
+  background: rgba(0, 0, 0, 0);
   padding: 0;
   margin: 0;
+  opacity: unset;
   width: 100vw;
   height: 100vh;
-  opacity: unset;
   max-width: 100vw;
   max-height: 100vh;
   top: 0;
   left: 0;
   position: fixed;
-  color: #e0e0e0;
 }
+
 
 #imageGalleryModal .image.content {
   padding: 0;
@@ -29,7 +29,6 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: #181a20;
 }
 
 /* UI Elements */
