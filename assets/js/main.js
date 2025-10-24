@@ -1,25 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const grid = document.getElementById('imageGrid');
-    if (!grid) return;
+    const tbody = document.getElementById('imageTableBody');
+    if (!tbody) return;
 
-    new Sortable(grid, {
+    new Sortable(tbody, {
         animation: 150,
-        ghostClass: 'dragging',
+        handle: '.order-square, .table-thumb',
         onEnd: function () {
             updateOrder();
         }
     });
 
     function updateOrder() {
-        const items = grid.querySelectorAll('.image-item');
+        const rows = tbody.querySelectorAll('.image-row');
         let data = [];
-        items.forEach((item, idx) => {
-            item.querySelector('.order-badge').textContent = idx + 1;
-            item.setAttribute('data-order', idx + 1);
+        rows.forEach((row, idx) => {
+            row.querySelector('.order-square').textContent = idx + 1;
+            row.setAttribute('data-order', idx + 1);
             data.push({
-                Bild_ID: item.getAttribute('data-bild-id'),
+                Bild_ID: row.getAttribute('data-bild-id'),
                 order: idx + 1,
-                filename: item.querySelector('img').getAttribute('src').replace('uploads/', '')
+                filename: row.querySelector('.table-thumb').getAttribute('src').replace('uploads/', '')
             });
         });
         fetch('documentplacer.php', {
