@@ -10,6 +10,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Listen for filename changes
+    tbody.addEventListener('change', function(e) {
+        if (e.target.classList.contains('filename-input')) {
+            const bildId = e.target.getAttribute('data-bild-id');
+            const newFilename = e.target.value.trim();
+            fetch('documentplacer.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'rename', Bild_ID: bildId, filename: newFilename })
+            })
+            .then(res => res.json())
+            .then(json => {
+                if (!json.success) alert('Kunde inte byta namn!');
+            });
+        }
+    });
+
     function updateOrder() {
         const rows = tbody.querySelectorAll('.image-row');
         let data = [];
@@ -19,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
             data.push({
                 Bild_ID: row.getAttribute('data-bild-id'),
                 order: idx + 1,
-                filename: row.querySelector('.table-thumb').getAttribute('src').replace('uploads/', '')
+                filename: row.querySelector('.filename-input').value
             });
         });
         fetch('documentplacer.php', {
