@@ -74,7 +74,7 @@ class ImageGallery {
     const src = this.images[this.currentIndex];
     this.$modal.find('#galleryImage').attr('src', src);
     this.$modal.find('#galleryCounter').text(
-      `Image ${this.currentIndex + 1} of ${this.images.length}`
+      `${this.currentIndex + 1} / ${this.images.length}`
     );
   }
 }
