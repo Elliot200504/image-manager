@@ -10,33 +10,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Listen for filename changes
-    tbody.addEventListener('change', function(e) {
-        if (e.target.classList.contains('filename-input')) {
-            const bildId = e.target.getAttribute('data-bild-id');
-            const newFilename = e.target.value.trim();
-            fetch('documentplacer.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'rename', Bild_ID: bildId, filename: newFilename })
-            })
-            .then(res => res.json())
-            .then(json => {
-                if (!json.success) alert('Kunde inte byta namn!');
-            });
-        }
-    });
-
     function updateOrder() {
         const rows = tbody.querySelectorAll('.image-row');
         let data = [];
         rows.forEach((row, idx) => {
-            row.querySelector('.order-square').textContent = idx + 1;
+            // Update badge number
+            const badge = row.querySelector('.order-square');
+            if (badge) badge.textContent = idx + 1;
+
             row.setAttribute('data-order', idx + 1);
             data.push({
                 Bild_ID: row.getAttribute('data-bild-id'),
                 order: idx + 1,
-                filename: row.querySelector('.filename-input').value
+                filename: row.querySelector('.filename-input').value,
+                source: row.querySelector('.table-thumb').getAttribute('src').replace('uploads/', '')
             });
         });
         fetch('documentplacer.php', {
