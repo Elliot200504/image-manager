@@ -102,41 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-<script>
-$(document).ready(function() {
-    $('#imageAccordion').accordion({ exclusive: false });
 
-    const images = [];
-    $('.table-thumb').each(function() {
-        images.push($(this).attr('src'));
-    });
-    $('.table-thumb').on('click', function() {
-        const idx = Number($(this).attr('data-gallery-index'));
-        if (window.imageGallery) {
-            window.imageGallery.open(images, idx);
-        }
-    });
-
-    const tbody = document.getElementById('imageTableBody');
-    tbody.addEventListener('change', function(e) {
-        if (e.target.classList.contains('filename-input')) {
-            const bildId = e.target.getAttribute('data-bild-id');
-            const newFilename = e.target.value.trim();
-            fetch('documentplacer.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'rename', Bild_ID: bildId, filename: newFilename })
-            })
-            .then(res => res.json())
-            .then(json => {
-                if (!json.success) alert('Kunde inte byta namn!');
-            });
-        }
-    });
-
-    // TODO: Add handlers for rotate, edit, delete as needed
-});
-</script>
 <?php else: ?>
 <div class="ui warning message">
     <i class="photo icon"></i>
