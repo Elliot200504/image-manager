@@ -70,27 +70,23 @@ body,
     height: 80px;
     object-fit: cover;
     display: block;
-    background: transparent !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
 }
-.table-thumb:hover { box-shadow: none !important; }
 
-.filename {
-    font-size: 1em;
+.filename-text {
+    font-size: 0.95em;
     color: #222;
     font-weight: 500;
 }
 .filename-link {
     color: #2185d0 !important;
-    font-size: 1.1em !important;
-    text-decoration: underline !important;
-    background: none !important;
-    padding: 0;
-    border-radius: 0;
-    margin-left: 0.5em;
-    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px; /* adjust if needed */
 }
+
 .actions {
     display: inline-flex;
     gap: 6px;
