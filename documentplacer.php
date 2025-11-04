@@ -60,44 +60,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <table class="ui very basic unstackable table image-table">
                 <tbody id="imageTableBody">
-<?php foreach ($images as $idx => $img): ?>
-<tr class="image-row" draggable="true"
-    data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>"
-    data-order="<?= htmlspecialchars($img['order']) ?>">
-    <td class="media-cell" style="vertical-align: top;">
-        <div class="thumb-with-order">
-            <div class="order-tab"><?= $idx + 1 ?></div>
-            <img src="uploads/<?= htmlspecialchars($img['source']) ?>"
-                 alt="<?= htmlspecialchars($img['filename']) ?>"
-                 class="table-thumb"
-                 data-gallery-index="<?= $idx ?>">
-        </div>
-         <input type="text"
-                   class="filename-input"
-                   value="<?= htmlspecialchars($img['filename']) ?>"
-                   data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>">
-    </td>
-    <td class="meta-cell" style="vertical-align: top;">
-        <div class="meta-row">
-            <div class="actions">
-                <a href="uploads/<?= htmlspecialchars($img['source']) ?>" download="<?= htmlspecialchars($img['filename']) ?>" title="Ladda ner">
-                    <i class="download icon"></i>
-                </a>
-                <button class="ui icon button rotate-btn" title="Rotera">
-                    <i class="undo icon"></i>
-                </button>
-                <button class="ui icon button edit-btn" title="Redigera">
-                    <i class="pencil alternate icon"></i>
-                </button>
-                <button class="ui icon button delete-btn" title="Ta bort">
-                    <i class="trash icon"></i>
-                </button>
-            </div>
-        </div>
-    </td>
-</tr>
-<?php endforeach; ?>
-</tbody>
+                <?php foreach ($images as $idx => $img): ?>
+                    <tr class="image-row" draggable="true"
+                        data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>"
+                        data-order="<?= htmlspecialchars($img['order']) ?>">
+                        <td class="media-cell" style="vertical-align: middle;">
+                            <div class="row-inline">
+                                <div class="thumb-with-order">
+                                    <div class="order-tab"><?= $idx + 1 ?></div>
+                                    <img src="uploads/<?= htmlspecialchars($img['source']) ?>"
+                                         alt="<?= htmlspecialchars($img['filename']) ?>"
+                                         class="table-thumb"
+                                         data-gallery-index="<?= $idx ?>">
+                                </div>
+                                <span class="filename-text" data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>">
+                                    <?= htmlspecialchars($img['filename']) ?>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="actions-cell" style="vertical-align: middle;">
+                            <div class="actions">
+                                    <a href="uploads/<?= htmlspecialchars($img['source']) ?>"
+                                       download="<?= htmlspecialchars($img['filename']) ?>" title="Ladda ner">
+                                        <i class="download icon"></i>
+                                    </a>
+                                    <button class="ui icon button rotate-btn" title="Rotera">
+                                        <i class="undo icon"></i>
+                                    </button>
+                                    <button class="ui icon button edit-btn" title="Redigera">
+                                        <i class="pencil alternate icon"></i>
+                                    </button>
+                                    <button class="ui icon button delete-btn" title="Ta bort">
+                                        <i class="trash icon"></i>
+                                    </button>
+                        </div>                
+                    </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
             </table>
         </div>
     </div>
