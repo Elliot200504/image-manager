@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     new Sortable(tbody, {
         animation: 150,
-        handle: '.order-square, .table-thumb',
+        handle: '.order-tab, .table-thumb',
         onEnd: function () {
             updateOrder();
         }
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let data = [];
         rows.forEach((row, idx) => {
             // Update badge number
-            const badge = row.querySelector('.order-square');
+            const badge = row.querySelector('.order-tab');
             if (badge) badge.textContent = idx + 1;
 
             row.setAttribute('data-order', idx + 1);

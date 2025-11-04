@@ -11,7 +11,6 @@ body,
 
 .ui.segment {
     background: #fff !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
 }
 
 .ui.header,
@@ -38,18 +37,38 @@ body,
     border: none !important;
     vertical-align: middle !important;
 }
+
+
+.thumb-with-order {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    overflow: hidden; 
+}
+
+.order-tab {
+    width: 28px;
+    background: #f3f3f3;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9em;
+    user-select: none;
+}
+
 .table-thumb {
     width: 126px;
     height: 80px;
-    max-height: 100%;
     object-fit: cover;
-    font-size: 0.8em;
     display: block;
-    background: #fff;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
-.table-thumb:hover {
-    box-shadow: 0 4px 16px #b4ddfc;
-}
+.table-thumb:hover { box-shadow: none !important; }
+
 .filename {
     font-size: 1em;
     color: #222;
@@ -66,28 +85,24 @@ body,
     word-break: break-all;
 }
 .actions {
-    display: flex;
-    gap: 4px;
-    justify-content: flex-end;
-    align-items: flex-start;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: 4px;
 }
 .actions .ui.icon.button,
 .actions a {
-    font-size: 0.95em !important;
-    padding: 0 !important;
-    margin: 0 !important;
     background: transparent !important;
-    color: #222 !important;
     border: none !important;
     box-shadow: none !important;
-    min-width: unset !important;
-    min-height: unset !important;
-    line-height: 1;
+    color: #222 !important;
+    padding: 0 !important;
+    font-size: 0.95em !important;
 }
 .actions .ui.icon.button:hover,
 .actions a:hover {
-    color: #2185d0 !important;
     background: transparent !important;
+    color: #2185d0 !important;
 }
 
 .actions .ui.icon.button,
@@ -104,16 +119,14 @@ body,
     margin-right: 0;
 }
 
-.order-square {
-    width: 26px;
-    height: 26px;
-    background: #fdfdfd;
-    color: #222;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.9em;
-    margin: auto;
-    border: 1px solid #ddd;
+.ui.segment,
+.ui.segments,
+.ui.segments .segment {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+    .order-tab { width: 24px; font-size: 0.85em; }
+    .table-thumb { width: 110px; height: 72px; }
 }
