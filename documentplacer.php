@@ -19,13 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (is_array($input) && isset($input[0]['Bild_ID'])) {
-        // $input is the new order array from JS
         $newImages = [];
         foreach ($input as $newImg) {
             foreach ($images as $oldImg) {
                 if ($oldImg['Bild_ID'] === $newImg['Bild_ID']) {
-                    $newImg['source'] = $oldImg['source']; 
-
+                    $newImg['source'] = $oldImg['source'];
                     break;
                 }
             }
