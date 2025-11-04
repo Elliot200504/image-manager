@@ -78,10 +78,7 @@ body,
 .filename-text {
     font-size: 0.95em;
     color: #222;
-    font-weight: 500;
-}
-.filename-link {
-    color: #2185d0 !important;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 320px; /* adjust if needed */
