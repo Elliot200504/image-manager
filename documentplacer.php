@@ -47,6 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="content">
         <div class="ui segment">
+            <div class="top-actions">
+                <a class="ui basic circular icon button enable-sort" title="Sortera">
+                    <i class="sort icon"></i>
+                </a>
+            </div>
+
+            <div id="sortModeMessage" class="ui large message" style="display:none;margin:8px 0 0;">
+                <i class="arrows alternate vertical icon"></i>
+                Sortering läge: Dra och släpp för att ändra ordning.
+            </div>
+
             <table class="ui very basic unstackable table image-table">
                 <tbody id="imageTableBody">
 <?php foreach ($images as $idx => $img): ?>
