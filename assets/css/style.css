@@ -41,7 +41,7 @@ body,
 .media-cell .row-inline {
     display: inline-flex;
     align-items: center;
-    gap: 10px;              /* space between image, name, buttons */
+    gap: 10px;              
 }
 
 .thumb-with-order {
