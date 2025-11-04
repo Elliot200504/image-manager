@@ -86,10 +86,11 @@ body,
 
 .actions {
     display: inline-flex;
-    gap: 6px;
     align-items: center;
-    margin-left: 4px;
+    gap: 8px;
+    margin: 0;
 }
+
 .actions .ui.icon.button,
 .actions a {
     background: transparent !important;
@@ -98,7 +99,9 @@ body,
     color: #222 !important;
     padding: 0 !important;
     font-size: 0.95em !important;
+    margin: 0 !important;
 }
+
 .actions .ui.icon.button:hover,
 .actions a:hover {
     background: transparent !important;
