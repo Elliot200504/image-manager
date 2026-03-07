@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
 </head>
 <body>
+<?php include 'menu.php'; ?>
 <div class="ui container" style="margin-top:2em;">
     <h2 class="ui header">Login</h2>
     <?php if(isset($error)) echo '<div class="ui red message">'.$error.'</div>'; ?>

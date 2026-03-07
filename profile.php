@@ -6,6 +6,7 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 $username = $_SESSION['username'];
+include 'menu.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
