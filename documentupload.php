@@ -55,23 +55,51 @@ elseif (isset($input['action']) && $input['action'] === 'rename' && isset($input
 ?>
 <?php include 'menu.php'; ?>
 <div class="ui container" style="margin-top:2em;">
-    <div class="ui centered card" style="max-width:400px;margin:auto;">
+    <div class="ui segment upload-segment" style="max-width:700px;margin:auto;padding:2em 2em 1em 2em;border-radius:18px;box-shadow:0 4px 32px #0001;background:#fff;">
         <div class="content">
-            <div class="header">Upload a new image</div>
+            <div class="header" style="font-size:1.7em;text-align:center;">Upload a new image</div>
+            <div class="description" style="margin-bottom:1em;text-align:center;color:#888;">
+                Select an image to preview before uploading. Add a descriptive title for a friendlier experience!
+            </div>
         </div>
         <div class="content">
             <?php if ($feedback) echo $feedback; ?>
-            <form class="ui form" method="post" enctype="multipart/form-data">
+            <form class="ui form" method="post" enctype="multipart/form-data" id="uploadForm">
                 <div class="field">
                     <label>Title</label>
                     <input type="text" name="title" placeholder="Enter a title" required>
                 </div>
                 <div class="field">
-                    <label>Välj fil</label>
-                    <input type="file" name="image" accept="image/*" required>
+                    <label>Choose image</label>
+                    <input type="file" name="image" accept="image/*" required id="imageInput">
                 </div>
-                <button class="ui primary button" type="submit">Ladda upp</button>
+                <div class="field preview-field" style="text-align:center;">
+                    <img id="imagePreview" src="" style="display:none;max-width:100%;max-height:350px;border-radius:12px;margin:1em auto;box-shadow:0 2px 12px #0002;" alt="Preview">
+                    <div id="previewInfo" style="color:#888;font-size:1em;margin-top:0.5em;"></div>
+                </div>
+                <button class="ui primary button" type="submit" style="width:100%;font-size:1.15em;padding:1em 0;">Upload</button>
             </form>
         </div>
     </div>
 </div>
+<script>
+// Image preview logic
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewInfo = document.getElementById('previewInfo');
+imageInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            previewInfo.textContent = `${file.name} (${Math.round(file.size/1024)} KB)`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        imagePreview.style.display = 'none';
+        previewInfo.textContent = '';
+    }
+});
+</script>
