@@ -52,28 +52,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <table class="ui very basic unstackable table image-table">
                 <tbody id="imageTableBody">
 <?php foreach ($images as $idx => $img): ?>
-    <tr class="image-row" draggable="true"
-        data-bild-id="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
-        data-order="<?= htmlspecialchars($img['order'] ?? ($idx + 1)) ?>">
-        <td style="width:36px; vertical-align: top;">
-            <div class="order-square"><?= $idx + 1 ?></div>
-        </td>
-        <td style="width:120px; vertical-align: top;">
+<tr class="image-row" draggable="true"
+    data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>"
+    data-order="<?= htmlspecialchars($img['order']) ?>">
+    <td class="media-cell" style="vertical-align: top;">
+        <div class="thumb-with-order">
+            <div class="order-tab"><?= $idx + 1 ?></div>
             <img src="uploads/<?= htmlspecialchars($img['source']) ?>"
-     alt="<?= htmlspecialchars($img['filename']) ?>"
-     class="table-thumb"
-     data-gallery-index="<?= $idx ?>">
-        </td>
-        <td style="vertical-align: top;">
-            <input type="text"
+                 alt="<?= htmlspecialchars($img['filename']) ?>"
+                 class="table-thumb"
+                 data-gallery-index="<?= $idx ?>">
+        </div>
+         <input type="text"
                    class="filename-input"
                    value="<?= htmlspecialchars($img['filename']) ?>"
-                   data-bild-id="<?= htmlspecialchars($img['Bild_ID'] ?? 'Bild_ID_' . ($idx + 1)) ?>"
-                   style="width: 140px; font-size: 0.85em; color: #2185d0; border: 1px solid #ddd; border-radius: 4px; padding: 2px 6px;">
-        </td>
-        <td class="actions-cell" style="vertical-align: top; text-align: right; position: relative;">
+                   data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>">
+    </td>
+    <td class="meta-cell" style="vertical-align: top;">
+        <div class="meta-row">
             <div class="actions">
-                <a href="uploads/<?= htmlspecialchars($img['filename']) ?>" download title="Ladda ner">
+                <a href="uploads/<?= htmlspecialchars($img['source']) ?>" download="<?= htmlspecialchars($img['filename']) ?>" title="Ladda ner">
                     <i class="download icon"></i>
                 </a>
                 <button class="ui icon button rotate-btn" title="Rotera">
@@ -86,10 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="trash icon"></i>
                 </button>
             </div>
-        </td>
-    </tr>
-    <tr>
-    </tr>
+        </div>
+    </td>
+</tr>
 <?php endforeach; ?>
 </tbody>
             </table>
