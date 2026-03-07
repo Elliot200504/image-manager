@@ -44,12 +44,9 @@ $recent = array_slice(array_reverse($documents), 0, 10); // Show 10 most recent
                             </a>
                             <?php if (isset($_SESSION['username']) && $_SESSION['username'] === ($img['username'] ?? '')): ?>
                                 <div class="ui right floated buttons">
-                                    <button class="ui icon button rotate-btn" title="Rotera"><i class="undo icon"></i></button>
-                                    <button class="ui icon button edit-btn" title="Redigera"><i class="pencil alternate icon"></i></button>
-                                    <button class="ui icon button delete-btn" title="Ta bort"><i class="trash icon"></i></button>
-                                </div>
-                                <div style="margin-top:0.5em;">
-                                    <input type="text" class="filename-input" value="<?= htmlspecialchars($img['filename']) ?>" data-bild-id="<?= htmlspecialchars($img['Bild_ID']) ?>">
+                                    <button class="ui mini icon button rotate-btn" title="Rotera"><i class="undo icon"></i></button>
+                                    <button class="ui mini icon button edit-btn" title="Redigera"><i class="pencil alternate icon"></i></button>
+                                    <button class="ui mini icon button delete-btn" title="Ta bort"><i class="trash icon"></i></button>
                                 </div>
                             <?php endif; ?>
                         </div>
