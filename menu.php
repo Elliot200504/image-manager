@@ -19,6 +19,7 @@ $logged_in = isset($_SESSION['username']) || (isset($_COOKIE['logged_in']) && $_
 	<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 	<script src="assets/js/gallery.js"></script>
 	<script src="assets/js/main.js"></script>
+	
 </head>
 <body>
 <div class="ui menu">
