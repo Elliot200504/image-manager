@@ -1,7 +1,5 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const tbody = document.getElementById('imageTableBody');
-    if (!tbody) return;
-
+const tbody = document.getElementById('imageTableBody');
+if (tbody) {
     new Sortable(tbody, {
         animation: 150,
         handle: '.order-tab, .table-thumb',
@@ -34,5 +32,40 @@ document.addEventListener('DOMContentLoaded', function () {
           .then(json => {
               if (!json.success) alert('Order update failed');
           });
+    }
+}
+
+// Make toggleGalleryMenu globally available
+window.toggleGalleryMenu = function(titleElem) {
+    // Close all other menus
+    document.querySelectorAll('.gallery-card-menu.active').forEach(function(menu) {
+        if (menu !== titleElem.nextElementSibling) menu.classList.remove('active');
+    });
+    // Toggle this menu
+    const menu = titleElem.nextElementSibling;
+    if (!menu) return;
+    menu.classList.toggle('active');
+    console.log('Toggled menu:', menu, 'Active:', menu.classList.contains('active'));
+};
+
+// Clean menu toggle handler for gallery-card-title
+function handleGalleryCardTitleClick(e) {
+    e.stopPropagation();
+    var $card = $(this).closest('.ui.card');
+    var $menu = $card.find('.gallery-card-menu').first();
+    // Close all other menus
+    $('.gallery-card-menu.active').not($menu).removeClass('active');
+    // Toggle only this menu
+    $menu.toggleClass('active');
+    // Debug output
+    console.log('Gallery menu toggled:', $menu.get(0), 'Active:', $menu.hasClass('active'));
+}
+
+$(document).on('click', '.gallery-card-title', handleGalleryCardTitleClick);
+
+// Close menu when clicking outside
+$(window).on('click', function(e) {
+    if (!$(e.target).hasClass('gallery-card-title')) {
+        $('.gallery-card-menu.active').removeClass('active');
     }
 });
