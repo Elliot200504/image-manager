@@ -1,3 +1,39 @@
+/* Gallery card group full width and card tweaks */
+.ui.three.stackable.cards {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.ui.three.stackable.cards .ui.card {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0 0.5em 1em 0.5em !important;
+}
+.gallery-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.7em 0;
+    border-top: 1px solid #eee;
+    transition: background 0.2s;
+}
+.gallery-card-title:hover {
+    background: #f3f7fa;
+}
+.gallery-card-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5em 0;
+    background: #fafbfc;
+    border-top: 1px solid #e0e0e0;
+}
+.gallery-card-menu.active {
+    display: flex;
+}
 /* Light theme for accordion and table */
 body,
 .ui.container,
