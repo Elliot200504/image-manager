@@ -23,20 +23,16 @@ $recent = array_slice(array_reverse($documents), 0, 10); // Show 10 most recent
             <?php else: ?>
                 <?php foreach ($documents as $idx => $img): ?>
                     <div class="ui card">
-                        <div class="image">
-                            <img src="uploads/<?= htmlspecialchars($img['source']) ?>" alt="<?= htmlspecialchars($img['filename']) ?>">
+                        <div class="image" style="height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                            <img src="uploads/<?= htmlspecialchars($img['source']) ?>" alt="<?= htmlspecialchars($img['title'] ?? $img['filename']) ?>" style="max-height:200px;max-width:100%;object-fit:cover;cursor:pointer;" onclick="window.imageGallery && window.imageGallery.open(['uploads/<?= htmlspecialchars($img['source']) ?>'], 0);">
                         </div>
                         <div class="content">
                             <div class="header">
-                                <?= htmlspecialchars($img['filename']) ?>
                                 <?php if (!empty($img['title'])): ?>
-                                    <div class="ui tiny label" style="margin-left:0.5em; background:#e0e1e2; color:#222;">
-                                        <?= htmlspecialchars($img['title']) ?>
-                                    </div>
+                                    <?= htmlspecialchars($img['title']) ?>
+                                <?php else: ?>
+                                    <span style="color:#888;">No title</span>
                                 <?php endif; ?>
-                            </div>
-                            <div class="meta">
-                                Bild ID: <?= htmlspecialchars($img['Bild_ID']) ?> | Order: <?= htmlspecialchars($img['order']) ?>
                             </div>
                             <div class="description">
                                 Posted by: <strong><?= htmlspecialchars($img['username'] ?? 'unknown') ?></strong>
