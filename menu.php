@@ -1,6 +1,9 @@
 
 <?php
+if(!isset($_SESSION)) {
 session_start();
+}
+
 ?>
 <div class="ui menu">
 	<a class="item" href="home.php">Home</a>
