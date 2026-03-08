@@ -1,0 +1,141 @@
+/* Profile page modern UX */
+.profile-container {
+  max-width: 900px;
+  margin: 2em auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #0001;
+  padding: 2.5em 3em;
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  margin-bottom: 2em;
+}
+.profile-picture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f3f3f3;
+  box-shadow: 0 2px 8px #0002;
+}
+.profile-info {
+  flex: 1;
+}
+.profile-username {
+  font-size: 2em;
+  font-weight: 700;
+  color: #222;
+}
+.profile-description {
+  font-size: 1.1em;
+  color: #555;
+  margin-top: 0.5em;
+}
+.profile-edit-form {
+  margin-top: 1.5em;
+  background: #fafbfc;
+  border-radius: 12px;
+  padding: 1.5em 2em;
+  box-shadow: 0 2px 8px #0001;
+}
+.profile-edit-form .ui.input,
+.profile-edit-form textarea {
+  width: 100%;
+  margin-bottom: 1em;
+}
+.profile-edit-form .ui.button {
+  margin-top: 1em;
+}
+.profile-posts-section {
+  margin-top: 2.5em;
+}
+.profile-posts-header {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 1em;
+}
+.profile-posts-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: flex-start;
+}
+.profile-posts-grid-modern {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: flex-start;
+  margin-top: 1em;
+}
+.profile-post-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1em;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-post-card-modern {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #0001;
+  padding: 1.2em;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+}
+.profile-post-card-modern:hover {
+  box-shadow: 0 8px 32px #0002;
+}
+.profile-post-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.7em;
+}
+.profile-post-img-modern {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 0.8em;
+  box-shadow: 0 2px 8px #0001;
+}
+.profile-post-title {
+  font-size: 1em;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.3em;
+}
+.profile-post-title-modern {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.3em;
+  text-align: center;
+}
+.profile-post-title-table {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #222;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  text-align: left;
+}
+.profile-post-type {
+  font-size: 0.95em;
+  color: #888;
+}
+.profile-post-type-modern {
+  font-size: 1em;
+  color: #888;
+  text-align: center;
+}
