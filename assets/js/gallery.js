@@ -72,31 +72,33 @@ class ImageGallery {
   }
 
   updateDisplay() {
-    const src = this.images[this.currentIndex];
-    this.$modal.find('#galleryImage').attr('src', src);
-    this.$modal.find('#galleryCounter').text(
-      `${this.currentIndex + 1} / ${this.images.length}`
-    );
-        // Custom overlay
+        const src = this.images[this.currentIndex];
+        // Custom overlay: overlay box contains image and info
         let overlay = '';
         if (this.meta && this.meta[this.currentIndex]) {
           const m = this.meta[this.currentIndex];
           overlay = `
-            <div id="galleryOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;">
-              <div class="gallery-info-top">
-                <div class="gallery-title">${m.title || '<span style=\"color:#eee;\">No title</span>'}</div>
-                <div class="gallery-author">by ${m.username || 'Unknown'}</div>
+            <div id="galleryOverlay" class="gallery-modal-box">
+              <div class="gallery-modal-header">
+                <div class="gallery-modal-title">${m.title || '<span style=\"color:#eee;\">No title</span>'}</div>
+                <div class="gallery-modal-author">by ${m.username || 'Unknown'}</div>
               </div>
-              <div class="gallery-info-bottom">
-                <a href="${m.download}" download="${m.filename}" class="ui button gallery-download">Download <i class="download icon"></i></a>
-                <div class="gallery-type">Type: ${m.type || 'Unknown'}</div>
+              <div class="gallery-modal-image">
+                <img id="galleryImage" src="${src}" alt="${m.title || m.filename}" class="gallery-modal-img">
+              </div>
+              <div class="gallery-modal-footer">
+                <a href="${m.download}" download="${m.filename}" class="ui button gallery-modal-download">Download <i class="download icon"></i></a>
+                <div class="gallery-modal-type">Type: ${m.type || 'Unknown'}</div>
               </div>
             </div>
           `;
-    }
-    this.$modal.find('#galleryOverlay').remove();
-    this.$modal.find('#galleryImageContainer').css('position', 'relative');
-    this.$modal.find('#galleryImageContainer').append(overlay);
+        }
+        this.$modal.find('#galleryOverlay').remove();
+        this.$modal.find('#galleryImageContainer').css('position', 'relative');
+        this.$modal.find('#galleryImageContainer').html(overlay);
+        this.$modal.find('#galleryCounter').text(
+          `${this.currentIndex + 1} / ${this.images.length}`
+        );
   }
 }
 
