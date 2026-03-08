@@ -1,3 +1,30 @@
+/* Image grid for type page */
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.image-grid-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.post-img {
+    max-width: 320px;
+    min-width: 120px;
+    max-height: 320px;
+    min-height: 120px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: #f8f8f8;
+}
 /* Gallery card group full width and card tweaks */
 .ui.three.stackable.cards {
     width: 100% !important;
@@ -165,4 +192,262 @@ body,
 @media (max-width: 600px) {
     .order-tab { width: 24px; font-size: 0.85em; }
     .table-thumb { width: 110px; height: 72px; }
+}
+
+/* Modern SPA card styles */
+.modern-card {
+    border-radius: 18px !important;
+    box-shadow: 0 4px 24px #0001 !important;
+    background: #fff !important;
+    margin: 0 0.7em 1.5em 0.7em !important;
+    transition: box-shadow 0.2s, transform 0.2s;
+    border: none !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 220px;
+    max-width: 340px;
+    height: auto !important;
+    min-height: 180px;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    box-shadow: 0 4px 24px #0001 !important;
+    border-radius: 18px !important;
+    background: #fff !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 220px;
+    max-width: 340px;
+    height: auto !important;
+    min-height: 180px;
+}
+.card-type-img,
+.post-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0;
+    margin: 0 auto;
+    background: #fff;
+    display: block;
+}
+.card-image-bg {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f3f3f3;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+.card-type-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    margin: 0;
+}
+.card-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35em;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(32,34,40,0.45);
+    letter-spacing: 0.5px;
+    z-index: 2;
+    text-shadow: 0 2px 8px #0006;
+    transition: background 0.2s;
+}
+.card-title:hover {
+    background: rgba(32,34,40,0.65);
+}
+.card-content {
+    width: 100%;
+    padding: 0.7em 0.5em 0.7em 0.5em !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 40px;
+    background: none;
+}
+.card-post-count {
+    color: #222;
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    letter-spacing: 0.2px;
+}
+
+/* All Types cards match Top 3 Types */
+.all-type-card .card-image-bg {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f3f3f3;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+.all-type-card .card-type-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    margin: 0;
+}
+.all-type-card .card-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35em;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(32,34,40,0.45);
+    letter-spacing: 0.5px;
+    z-index: 2;
+    text-shadow: 0 2px 8px #0006;
+    transition: background 0.2s;
+}
+.all-type-card .card-title:hover {
+    background: rgba(32,34,40,0.65);
+}
+.all-type-card .card-content {
+    width: 100%;
+    padding: 0.7em 0.5em 0.7em 0.5em !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 40px;
+    background: none;
+}
+.all-type-card .card-post-count {
+    color: #222;
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    letter-spacing: 0.2px;
+}
+
+/* Post image cards (not type cards) */
+.post-img {
+    max-height: 180px;
+    width: auto;
+    min-width: 120px;
+    max-width: 100%;
+    min-height: 120px;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 0;
+    margin: 0 auto;
+    background: #fff;
+    display: block;
+}
+.post-title {
+    font-size: 1.08em;
+    font-weight: 600;
+    color: #222;
+    margin: 0.5em 0 0.2em 0;
+    text-align: center;
+    letter-spacing: 0.2px;
+}
+
+/* Variable size for post cards, grid layout */
+.ui.four.stackable.cards {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(320px, 1fr));
+    gap: 2em;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.ui.four.stackable.cards .ui.card.modern-card:not(.all-type-card) {
+    height: auto !important;
+    min-width: 320px;
+    max-width: 100%;
+    min-height: 320px;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    box-shadow: 0 4px 24px #0001 !important;
+    border-radius: 18px !important;
+    background: #fff !important;
+    overflow: hidden;
+}
+.ui.four.stackable.cards .ui.card.modern-card:not(.all-type-card) .card-content {
+    display: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    border: none !important;
+}
+
+/* Gallery overlay styles */
+#galleryOverlay {
+    margin-top: 1.5em;
+    text-align: center;
+    background: linear-gradient(135deg, #fff 80%, #f3f3f3 100%);
+    padding: 1.2em 0 1em 0;
+    border-radius: 18px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 32px #0001;
+    position: relative;
+}
+#galleryOverlay .gallery-title {
+    font-size: 1.35em;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 0.3em;
+    letter-spacing: 0.5px;
+}
+#galleryOverlay .gallery-user {
+    color: #555;
+    font-size: 1em;
+    margin-bottom: 0.5em;
+}
+#galleryOverlay .gallery-download {
+    margin-top: 0.5em;
+    font-size: 1.05em;
+    font-weight: 600;
+    background: #2185d0;
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.5em 1.2em;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+}
+#galleryOverlay .gallery-download:hover {
+    background: #1678c2;
 }
