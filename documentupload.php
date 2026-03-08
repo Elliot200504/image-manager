@@ -8,31 +8,40 @@ if (file_exists($jsonPath)) {
 
 $feedback = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
+
     if(!isset($_SESSION)){
         session_start();
     }
+
     $targetDir = __DIR__ . "/uploads/";
     if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
     $originalName = basename($_FILES["image"]["name"]);
     $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
     $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     $title = isset($_POST['title']) ? trim($_POST['title']) : '';
+    $type = isset($_POST['type']) ? trim($_POST['type']) : 'Other';
     if (in_array($ext, $allowed)) {
         $filename = uniqid('img_') . '.' . $ext;
         $targetFile = $targetDir . $filename;
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
+        
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) 
+        {
             $nextOrder = count($images) + 1;
             $nextID = "Bild_ID_" . $nextOrder;
             $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'anonymous';
+    
             $images[] = [
                 "Bild_ID" => $nextID,
                 "order" => $nextOrder,
                 "filename" => $originalName,
                 "source" => $filename,
                 "username" => $username,
-                "title" => $title
+                "title" => $title,
+                "type" => $type
             ];
+    
             file_put_contents($jsonPath, json_encode($images, JSON_PRETTY_PRINT));
+    
             $feedback = '<div class="ui positive message">Upload successful!</div>';
         } else {
             $feedback = '<div class="ui negative message">Upload failed.</div>';
@@ -68,6 +77,17 @@ elseif (isset($input['action']) && $input['action'] === 'rename' && isset($input
                 <div class="field">
                     <label>Title</label>
                     <input type="text" name="title" placeholder="Enter a title" required>
+                </div>
+                <div class="field">
+                    <label>Type</label>
+                    <select name="type" required>
+                        <option value="Other">Other</option>
+                        <option value="Animals">Animals</option>
+                        <option value="People">People</option>
+                        <option value="Architecture">Architecture</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Clothing">Clothing</option>
+                    </select>
                 </div>
                 <div class="field">
                     <label>Choose image</label>
