@@ -1,0 +1,10 @@
+# Ignore JSON files
+*.json
+
+# Ignore uploads directory
+uploads/
+
+# Ignore other common files
+*.log
+node_modules/
+.env

@@ -45,9 +45,10 @@ class ImageGallery {
     });
   }
 
-  open(images, startIndex = 0) {
+  open(images, startIndex = 0, meta = null) {
     this.images = images;
     this.currentIndex = startIndex;
+    this.meta = meta || [];
     this.updateDisplay();
     this.$modal.modal('show');
   }
@@ -71,11 +72,33 @@ class ImageGallery {
   }
 
   updateDisplay() {
-    const src = this.images[this.currentIndex];
-    this.$modal.find('#galleryImage').attr('src', src);
-    this.$modal.find('#galleryCounter').text(
-      `${this.currentIndex + 1} / ${this.images.length}`
-    );
+        const src = this.images[this.currentIndex];
+        // Custom overlay: overlay box contains image and info
+        let overlay = '';
+        if (this.meta && this.meta[this.currentIndex]) {
+          const m = this.meta[this.currentIndex];
+          overlay = `
+            <div id="galleryOverlay" class="gallery-modal-box">
+              <div class="gallery-modal-header">
+                <div class="gallery-modal-title">${m.title || '<span style=\"color:#eee;\">No title</span>'}</div>
+                <div class="gallery-modal-author">by ${m.username || 'Unknown'}</div>
+              </div>
+              <div class="gallery-modal-image">
+                <img id="galleryImage" src="${src}" alt="${m.title || m.filename}" class="gallery-modal-img">
+              </div>
+              <div class="gallery-modal-footer">
+                <a href="${m.download}" download="${m.filename}" class="ui button gallery-modal-download">Download <i class="download icon"></i></a>
+                <div class="gallery-modal-type">Type: ${m.type || 'Unknown'}</div>
+              </div>
+            </div>
+          `;
+        }
+        this.$modal.find('#galleryOverlay').remove();
+        this.$modal.find('#galleryImageContainer').css('position', 'relative');
+        this.$modal.find('#galleryImageContainer').html(overlay);
+        this.$modal.find('#galleryCounter').text(
+          `${this.currentIndex + 1} / ${this.images.length}`
+        );
   }
 }
 
@@ -88,35 +111,7 @@ function initiateImageGallery() {
   $('#btnGallery').on('click', function (e) {
     e.preventDefault();
 
-    // Collect all images
-    const images = [];
-    $('#imglist img').each(function () {
-      const src = $(this).attr('src');
-      if (src && window.imageGallery && window.imageGallery.isImageFile(src)) {
-        images.push(src);
-      }
-    });
-
-    $('#imglist a[href]').each(function () {
-      const href = $(this).attr('href');
-      if (
-        href &&
-        window.imageGallery &&
-        window.imageGallery.isImageFile(href)
-      ) {
-        if (!images.includes(href)) {
-          images.push(href);
-        }
-      }
-    });
-
-    if (images.length === 0) {
-      showAlert({
-        header: i18next.t('Ingen bild'),
-        body: i18next.t('Inga bilder att visa i galleriet'),
-      });
-      return;
-    }
+    // ...existing code...
 
     if (window.imageGallery) {
       window.imageGallery.open(images, 0);
