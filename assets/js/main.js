@@ -33,76 +33,6 @@ if (tbody) {
               if (!json.success) alert('Order update failed');
           });
     }
-<<<<<<< HEAD
-});
-
-(() => {
-  const $ = window.jQuery;
-
-  $(function () {
-    // Accordion
-    $('#imageAccordion').accordion({ exclusive: false });
-
-    const tbody = document.getElementById('imageTableBody');
-    if (!tbody) return;
-
-    let sortable = null;
-    const $btn = $('.enable-sort');
-    const $msg = $('#sortModeMessage');
-
-    // Toggle sorting mode
-    $btn.on('click', () => setSort(!$('body').hasClass('sorting-active')));
-
-    function setSort(active) {
-      if (active) {
-        if (!sortable && window.Sortable) {
-          sortable = new Sortable(tbody, {
-            animation: 150,
-            draggable: 'tr.image-row',
-            handle: '.thumb-with-order, .order-tab, .table-thumb',
-            onEnd: saveOrder
-          });
-        }
-        $msg.stop(true, true).slideDown(120);
-        $('body').addClass('sorting-active');
-        $btn.addClass('active').attr('title', 'Avsluta sortering');
-      } else {
-        if (sortable) { sortable.destroy(); sortable = null; }
-        $msg.stop(true, true).slideUp(120);
-        $('body').removeClass('sorting-active');
-        $btn.removeClass('active').attr('title', 'Sortera');
-      }
-    }
-
-    function saveOrder() {
-      const rows = tbody.querySelectorAll('tr.image-row');
-      const payload = [];
-      rows.forEach((row, i) => {
-        // Update visible number
-        const tab = row.querySelector('.order-tab');
-        if (tab) tab.textContent = i + 1;
-
-        // Read filename from text span
-        const nameSpan = row.querySelector('.filename-text');
-        payload.push({
-          Bild_ID: row.getAttribute('data-bild-id'),
-          order: i + 1,
-          filename: nameSpan ? nameSpan.textContent.trim() : ''
-        });
-      });
-
-      fetch('documentplacer.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(j => { if (!j.success) console.warn('Order update failed', j); })
-      .catch(console.error);
-    }
-  });
-})();
-=======
 }
 
 // Make toggleGalleryMenu globally available
@@ -139,4 +69,3 @@ $(window).on('click', function(e) {
         $('.gallery-card-menu.active').removeClass('active');
     }
 });
->>>>>>> db58316dbdf323f399ce1a7e559857d97cc6cd06
