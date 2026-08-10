@@ -1,10 +1,14 @@
-# Ignore JSON files
-*.json
-
-# Ignore uploads directory
-uploads/
-
-# Ignore other common files
+# Runtime state — never commit. These live in Docker named volumes.
+/data/
+/storage/
 *.log
-node_modules/
 .env
+
+# The old flat-file layout, kept ignored so a pre-rewrite working copy does not
+# suddenly start offering these up for commit.
+/uploads/
+/documents.json
+/users.json
+
+node_modules/
+.DS_Store
