@@ -23,13 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     if (in_array($ext, $allowed)) {
         $filename = uniqid('img_') . '.' . $ext;
         $targetFile = $targetDir . $filename;
-        
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) 
+
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile))
         {
             $nextOrder = count($images) + 1;
             $nextID = "Bild_ID_" . $nextOrder;
             $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'anonymous';
-    
+            $dims = @getimagesize($targetFile);
+
             $images[] = [
                 "Bild_ID" => $nextID,
                 "order" => $nextOrder,
@@ -37,11 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
                 "source" => $filename,
                 "username" => $username,
                 "title" => $title,
-                "type" => $type
+                "type" => $type,
+                "width" => $dims ? $dims[0] : null,
+                "height" => $dims ? $dims[1] : null
             ];
-    
+
             file_put_contents($jsonPath, json_encode($images, JSON_PRETTY_PRINT));
-    
+
             $feedback = '<div class="ui positive message">Upload successful!</div>';
         } else {
             $feedback = '<div class="ui negative message">Upload failed.</div>';
@@ -61,52 +64,54 @@ elseif (isset($input['action']) && $input['action'] === 'rename' && isset($input
     echo json_encode(['success' => true]);
     exit;
 }
+$pageTitle = 'Post';
+include 'menu.php';
 ?>
-<?php include 'menu.php'; ?>
-<div class="ui container" style="margin-top:2em;">
-    <div class="ui segment upload-segment" style="max-width:700px;margin:auto;padding:2em 2em 1em 2em;border-radius:18px;box-shadow:0 4px 32px #0001;background:#fff;">
-        <div class="content">
-            <div class="header" style="font-size:1.7em;text-align:center;">Upload a new image</div>
-            <div class="description" style="margin-bottom:1em;text-align:center;color:#888;">
-                Select an image to preview before uploading. Add a descriptive title for a friendlier experience!
+<main class="ui container page-main">
+    <div class="upload-card">
+        <h1 class="upload-title">Upload a new image</h1>
+        <p class="upload-sub">Drop in an image, give it a title and a category — done.</p>
+        <?php if ($feedback) echo $feedback; ?>
+        <form class="ui form" method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="field">
+                <label>Title</label>
+                <input type="text" name="title" placeholder="Enter a title" required>
             </div>
-        </div>
-        <div class="content">
-            <?php if ($feedback) echo $feedback; ?>
-            <form class="ui form" method="post" enctype="multipart/form-data" id="uploadForm">
-                <div class="field">
-                    <label>Title</label>
-                    <input type="text" name="title" placeholder="Enter a title" required>
-                </div>
-                <div class="field">
-                    <label>Type</label>
-                    <select name="type" required>
-                        <option value="Other">Other</option>
-                        <option value="Animals">Animals</option>
-                        <option value="People">People</option>
-                        <option value="Architecture">Architecture</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Clothing">Clothing</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Choose image</label>
+            <div class="field">
+                <label>Type</label>
+                <select name="type" required>
+                    <option value="Other">Other</option>
+                    <option value="Animals">Animals</option>
+                    <option value="People">People</option>
+                    <option value="Architecture">Architecture</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Clothing">Clothing</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Image</label>
+                <div class="file-drop" id="fileDrop">
                     <input type="file" name="image" accept="image/*" required id="imageInput">
+                    <div class="file-drop-icon"><i class="cloud upload icon"></i></div>
+                    <div class="file-drop-text">Click to choose an image, or drag &amp; drop it here</div>
+                    <div class="file-drop-hint">JPG, PNG, GIF or WEBP</div>
                 </div>
-                <div class="field preview-field" style="text-align:center;">
-                    <img id="imagePreview" src="" style="display:none;max-width:100%;max-height:350px;border-radius:12px;margin:1em auto;box-shadow:0 2px 12px #0002;" alt="Preview">
-                    <div id="previewInfo" style="color:#888;font-size:1em;margin-top:0.5em;"></div>
-                </div>
-                <button class="ui primary button" type="submit" style="width:100%;font-size:1.15em;padding:1em 0;">Upload</button>
-            </form>
-        </div>
+            </div>
+            <div class="field preview-field">
+                <img id="imagePreview" src="" alt="Preview">
+                <div id="previewInfo"></div>
+            </div>
+            <button class="ui primary button upload-submit" type="submit">Upload</button>
+        </form>
     </div>
-</div>
+</main>
 <script>
-// Image preview logic
+// Image preview + drop-zone state
 const imageInput = document.getElementById('imageInput');
 const imagePreview = document.getElementById('imagePreview');
 const previewInfo = document.getElementById('previewInfo');
+const fileDrop = document.getElementById('fileDrop');
+
 imageInput.addEventListener('change', function() {
     const file = this.files[0];
     if (file) {
@@ -122,4 +127,14 @@ imageInput.addEventListener('change', function() {
         previewInfo.textContent = '';
     }
 });
+
+// Highlight the drop zone while dragging a file over it
+['dragenter', 'dragover'].forEach(evt =>
+    fileDrop.addEventListener(evt, () => fileDrop.classList.add('dragover'))
+);
+['dragleave', 'drop'].forEach(evt =>
+    fileDrop.addEventListener(evt, () => fileDrop.classList.remove('dragover'))
+);
 </script>
+</body>
+</html>

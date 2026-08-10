@@ -15,33 +15,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $error = 'Invalid username or password.';
 }
+$pageTitle = 'Login';
+include 'menu.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
-</head>
-<body>
-<?php include 'menu.php'; ?>
-<div class="ui container" style="margin-top:2em;">
-    <h2 class="ui header">Login</h2>
-    <?php if(isset($error)) echo '<div class="ui red message">'.$error.'</div>'; ?>
-    <form class="ui form" method="post">
-        <div class="field">
-            <label>Username</label>
-            <input type="text" name="username" required>
+<main class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-icon"><i class="sign in alternate icon"></i></div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">Log in to browse and share your images.</p>
+        <?php if(isset($error)) echo '<div class="ui red message">'.$error.'</div>'; ?>
+        <form class="ui form" method="post">
+            <div class="field">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Your username" required autofocus>
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Your password" required>
+            </div>
+            <button class="ui button primary auth-submit" type="submit">Login</button>
+        </form>
+        <div class="auth-alt">
+            Don't have an account? <a href="register.php">Register</a>
         </div>
-        <div class="field">
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <button class="ui button primary" type="submit">Login</button>
-    </form>
-    <div style="margin-top:1em;">
-        <a href="register.php">Don't have an account? Register</a>
     </div>
-</div>
+</main>
 </body>
 </html>
