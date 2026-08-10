@@ -19,33 +19,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+$pageTitle = 'Register';
+include 'menu.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
-</head>
-<body>
-<?php include 'menu.php'; ?>
-<div class="ui container" style="margin-top:2em;">
-    <h2 class="ui header">Register</h2>
-    <?php if(isset($error)) echo '<div class="ui red message">'.$error.'</div>'; ?>
-    <form class="ui form" method="post">
-        <div class="field">
-            <label>Username</label>
-            <input type="text" name="username" required>
+<main class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-icon"><i class="user plus icon"></i></div>
+        <h1 class="auth-title">Create an account</h1>
+        <p class="auth-sub">Join to upload, organize and share your images.</p>
+        <?php if(isset($error)) echo '<div class="ui red message">'.$error.'</div>'; ?>
+        <form class="ui form" method="post">
+            <div class="field">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Pick a username" required autofocus>
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Pick a password" required>
+            </div>
+            <button class="ui button primary auth-submit" type="submit">Register</button>
+        </form>
+        <div class="auth-alt">
+            Already have an account? <a href="login.php">Login</a>
         </div>
-        <div class="field">
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <button class="ui button primary" type="submit">Register</button>
-    </form>
-    <div style="margin-top:1em;">
-        <a href="login.php">Already have an account? Login</a>
     </div>
-</div>
+</main>
 </body>
 </html>
