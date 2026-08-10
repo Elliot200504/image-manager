@@ -6,8 +6,8 @@ Guidance for Claude Code when working in this repository.
 
 `fileshare` is a small PHP file-upload service: register/login, upload files of
 any supported type, browse them grouped by kind, reorder and rename your own,
-download. No framework, no build step, no package manager, no database — plain
-PHP on `php:8.3-apache`, with state in flat JSON files.
+download. No framework, no build step and no package manager — plain PHP on
+`php:8.3-apache`, with state in SQLite.
 
 It began as an images-only app (`image-manager`) and was rewritten. The git
 history before the rewrite reflects that older design; do not treat it as
@@ -21,8 +21,11 @@ Docker is the only supported way to run this:
 docker compose up --build     # http://localhost:8080
 ```
 
-There are no tests, no linter, and no build step. `php -l <file>` is the only
-automated check — run it on every PHP file you touch.
+No linter and no build step. `php -l <file>` on every PHP file you touch, and
+`./tests/smoke.sh` against a running stack — 27 checks over real HTTP, covering
+the security invariants below plus concurrency and reordering. Reset with
+`docker compose down -v` between runs; re-running without a reset fails at
+registration because the usernames already exist.
 
 ## Architecture
 
@@ -31,30 +34,39 @@ automated check — run it on every PHP file you touch.
 it is what stops an uploaded file from being requested and interpreted.
 
 - **`src/bootstrap.php`** — every entry point starts by requiring this. Defines
-  paths, configures the session cookie, and constructs `$storage`, `$users`,
+  paths, configures the session cookie, and constructs `$db`, `$users`,
   `$files`, `$auth`, `$uploader` into scope. There is no autoloader by design.
-- **`src/Storage.php`** — a JSON file of records. `mutate()` holds
-  `flock(LOCK_EX)` across read-modify-write. **All writes must go through it**;
-  a bare `file_put_contents` reintroduces the lost-update bug the class exists
-  to prevent.
-- **`src/Files.php` / `src/Users.php`** — repositories over those files.
-  Ownership is re-checked *inside* the lock, not by the caller.
+- **`src/Database.php`** — the PDO/SQLite connection and its pragmas (WAL,
+  `busy_timeout`, `foreign_keys`, `synchronous`). Applies `schema.sql` once,
+  guarded by `PRAGMA user_version`; bumping the schema means editing that file
+  and raising the version.
+- **`src/Files.php` / `src/Users.php`** — repositories. **Ownership belongs in
+  the WHERE clause**, not in a separate SELECT beforehand — that is what removes
+  the check-then-act window. Likewise `position` is assigned by the INSERT
+  (`COALESCE(MAX(position),0)+1`), never read and then written.
 - **`src/Uploader.php`** — the only path by which bytes enter storage.
 - **`src/FileTypes.php`** — the allowlist. Adding a type means adding it here,
   with its permitted MIME types.
 
-## Data storage (flat files — no database)
+## Data storage (SQLite)
 
-- **`data/users.json`** — `[{ username, password (hashed), description, avatar, created_at }]`
-  where `avatar` is a `file_id`.
-- **`data/files.json`** — `[{ file_id, owner, stored_name, original_name, title,
-  extension, mime, kind, size, width, height, position, uploaded_at }]`
+`data/fileshare.sqlite`, schema in `src/schema.sql`:
+
+- **`users`** — `username` (PK, `COLLATE NOCASE`), `password` (hashed),
+  `description`, `avatar` → `files.file_id` `ON DELETE SET NULL`, `created_at`.
+  The NOCASE primary key is what enforces case-insensitive uniqueness; do not
+  reintroduce manual `strtolower` comparisons.
+- **`files`** — `file_id` (PK), `owner` → `users.username` `ON DELETE CASCADE`,
+  `stored_name` (UNIQUE), `original_name`, `title`, `extension`, `mime`, `kind`,
+  `size`, `width`, `height`, `position`, `uploaded_at`.
   - `stored_name` is the random name on disk; `original_name` is for display.
   - `file_id` is `f_<random hex>` — **not** sequential. The old `Bild_ID_<n>`
     scheme collided after any delete.
 
-Both live in Docker named volumes and are gitignored. Treat them as runtime
-state, never as fixtures.
+The database lives in a Docker named volume and is gitignored. Treat it as
+runtime state, never as a fixture. `foreign_keys` is OFF by default in SQLite
+and is enabled per-connection in `Database` — the cascades above do nothing
+without it.
 
 ## Security invariants
 
