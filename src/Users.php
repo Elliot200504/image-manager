@@ -3,65 +3,76 @@
 declare(strict_types=1);
 
 /**
- * The user records in data/users.json.
+ * The user records, in SQLite.
  *
- * Usernames are matched case-insensitively so "Elliot" and "elliot" cannot both
- * register and then race each other for the same profile.
+ * Case-insensitive matching is now the primary key's own COLLATE NOCASE rather
+ * than a manual comparison repeated at each call site.
  */
 final class Users
 {
-    public function __construct(private readonly Storage $storage)
+    public function __construct(private readonly Database $db)
     {
     }
 
     /** @return array<int, array<string, mixed>> */
     public function all(): array
     {
-        return $this->storage->read();
+        return $this->db->pdo()
+            ->query('SELECT * FROM users ORDER BY username')
+            ->fetchAll();
     }
 
     /** @return array<string, mixed>|null */
     public function find(string $username): ?array
     {
-        foreach ($this->storage->read() as $user) {
-            if (isset($user['username']) && $this->same($user['username'], $username)) {
-                return $user;
-            }
-        }
+        $stmt = $this->db->pdo()->prepare('SELECT * FROM users WHERE username = ?');
+        $stmt->execute([$username]);
 
-        return null;
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
     }
 
     public function exists(string $username): bool
     {
-        return $this->find($username) !== null;
+        $stmt = $this->db->pdo()->prepare('SELECT 1 FROM users WHERE username = ?');
+        $stmt->execute([$username]);
+
+        return $stmt->fetchColumn() !== false;
     }
 
     /**
      * Create a user. Returns false if the name is taken.
      *
-     * The existence check happens inside the lock: checking first and then
-     * writing would let two simultaneous registrations both pass the check.
+     * Uniqueness is enforced by the primary key, so a duplicate is a constraint
+     * violation rather than something a prior SELECT could have missed — two
+     * simultaneous registrations cannot both succeed.
      */
     public function create(string $username, string $password): bool
     {
-        return $this->storage->mutate(function (array &$users) use ($username, $password): bool {
-            foreach ($users as $user) {
-                if (isset($user['username']) && $this->same($user['username'], $username)) {
-                    return false;
-                }
+        $stmt = $this->db->pdo()->prepare(
+            'INSERT INTO users (username, password, description, avatar, created_at)
+             VALUES (?, ?, \'\', NULL, ?)'
+        );
+
+        try {
+            $stmt->execute([
+                $username,
+                password_hash($password, PASSWORD_DEFAULT),
+                time(),
+            ]);
+        } catch (PDOException $e) {
+            // 23000 is an integrity constraint violation — here, the username
+            // primary key. Anything else is a real fault and must not be
+            // reported to the user as "name taken".
+            if (($e->errorInfo[0] ?? '') === '23000') {
+                return false;
             }
 
-            $users[] = [
-                'username'    => $username,
-                'password'    => password_hash($password, PASSWORD_DEFAULT),
-                'description' => '',
-                'avatar'      => null,
-                'created_at'  => time(),
-            ];
+            throw $e;
+        }
 
-            return true;
-        });
+        return true;
     }
 
     public function verifyPassword(string $username, string $password): bool
@@ -80,33 +91,37 @@ final class Users
     }
 
     /**
-     * Apply changes to a user's profile fields.
+     * Apply changes to a user's editable profile fields.
+     *
+     * The allowlist is what stops an extra POST parameter from reaching
+     * `password` or `username`.
      *
      * @param array<string, mixed> $changes
      */
     public function update(string $username, array $changes): void
     {
-        // Only fields a user is allowed to edit. Without this an extra POST
-        // parameter could overwrite `password` or `username`.
         $editable = ['description', 'avatar'];
+        $set      = [];
+        $params   = [];
 
-        $this->storage->mutate(function (array &$users) use ($username, $changes, $editable): void {
-            foreach ($users as &$user) {
-                if (isset($user['username']) && $this->same($user['username'], $username)) {
-                    foreach ($editable as $field) {
-                        if (array_key_exists($field, $changes)) {
-                            $user[$field] = $changes[$field];
-                        }
-                    }
-                    break;
-                }
+        foreach ($editable as $field) {
+            if (array_key_exists($field, $changes)) {
+                // Column names come from the hardcoded list above, never from
+                // the caller's keys, so this cannot become SQL injection.
+                $set[]           = $field . ' = :' . $field;
+                $params[$field]  = $changes[$field];
             }
-            unset($user);
-        });
-    }
+        }
 
-    private function same(string $a, string $b): bool
-    {
-        return mb_strtolower($a) === mb_strtolower($b);
+        if ($set === []) {
+            return;
+        }
+
+        $params['username'] = $username;
+
+        $stmt = $this->db->pdo()->prepare(
+            'UPDATE users SET ' . implode(', ', $set) . ' WHERE username = :username'
+        );
+        $stmt->execute($params);
     }
 }

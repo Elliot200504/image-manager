@@ -3,8 +3,8 @@
 A small PHP file-upload service. Register, upload files of any supported type,
 browse them grouped by kind, reorder and rename your own, and download.
 
-No framework, no build step, no package manager, no database — plain PHP on a
-stock `php:8.3-apache` image, with state in flat JSON files.
+No framework, no build step and no package manager — plain PHP on a stock
+`php:8.3-apache` image, with state in SQLite.
 
 ## Running
 
@@ -23,8 +23,9 @@ Then open <http://localhost:8080>.
 discards the request body before the script runs when that is exceeded, so a
 higher app limit would never be reachable.
 
-Data lives in two named volumes, `fileshare_data` and `fileshare_uploads`, and
-survives `docker compose down`. To wipe it:
+Data lives in two named volumes — `fileshare_data` (the SQLite database) and
+`fileshare_uploads` (the stored bytes) — and survives `docker compose down`.
+To wipe it:
 
 ```bash
 docker compose down -v
@@ -46,7 +47,8 @@ public/            document root — the only directory served over HTTP
 
 src/               application code, not web-reachable
   bootstrap.php    paths, session config, service wiring
-  Storage.php      flock'd read-modify-write over a JSON file
+  Database.php     PDO/SQLite connection, pragmas, migrations
+  schema.sql       the schema, applied once
   Files.php        the file index
   Users.php        the user records
   Auth.php         session authentication
@@ -55,16 +57,21 @@ src/               application code, not web-reachable
   FileTypes.php    allowlist, kinds, icons, size formatting
   helpers.php      escaping, redirects, flashes
 
-data/              files.json, users.json      (volume)
+data/              fileshare.sqlite            (volume)
 storage/uploads/   uploaded bytes              (volume)
 docker/            Dockerfile, vhost, php.ini
 ```
 
 ## How it works
 
-**Storage.** Every write goes through `Storage::mutate()`, which holds
-`flock(LOCK_EX)` across the read, the modification, and the write. Concurrent
-uploads queue rather than overwrite each other.
+**Storage.** SQLite in WAL mode, so readers proceed while a writer holds the
+write lock. Positions are assigned by the INSERT itself and ownership is a
+predicate in the UPDATE/DELETE, so neither has a check-then-act window.
+`busy_timeout` makes a second writer wait rather than fail with `SQLITE_BUSY`.
+
+The schema is applied once on first connect, guarded by `PRAGMA user_version`.
+There is no migration runner beyond that: bumping the schema means adding to
+`schema.sql` and raising that version.
 
 **Uploads.** A file must have an allowed extension *and* contents whose sniffed
 MIME type agrees with it. It is stored outside the document root under a random
@@ -88,8 +95,8 @@ inline from our own origin would be stored XSS.
 
 ## Known limitations
 
-- Flat JSON scales to hundreds of files, not hundreds of thousands. `flock`
-  makes writes safe, not fast.
+- SQLite handles one writer at a time. That is ample here, but a write-heavy
+  deployment would queue on `busy_timeout`.
 - Any logged-in user can view and download any file. There is no per-file
   visibility; ownership only governs rename, delete, and reorder.
 - No rate limiting on login, so passwords are only as good as the ones chosen.
@@ -103,6 +110,6 @@ docker compose up --build -d
 ./tests/smoke.sh
 ```
 
-24 checks through the real HTTP stack. It registers throwaway accounts and
+27 checks through the real HTTP stack. It registers throwaway accounts and
 uploads into the attached volume, so point it at a scratch stack;
 `docker compose down -v` resets state between runs.
