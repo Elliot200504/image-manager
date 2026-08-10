@@ -73,22 +73,27 @@ class ImageGallery {
 
   updateDisplay() {
         const src = this.images[this.currentIndex];
-        // Custom overlay: overlay box contains image and info
+        // Titles and filenames are user-supplied, so every value interpolated
+        // into this markup must be escaped — both text nodes and attributes.
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
         let overlay = '';
         if (this.meta && this.meta[this.currentIndex]) {
           const m = this.meta[this.currentIndex];
+          const title = m.title ? esc(m.title) : '<span class="gallery-modal-untitled">No title</span>';
           overlay = `
             <div id="galleryOverlay" class="gallery-modal-box">
               <div class="gallery-modal-header">
-                <div class="gallery-modal-title">${m.title || '<span style=\"color:#eee;\">No title</span>'}</div>
-                <div class="gallery-modal-author">by ${m.username || 'Unknown'}</div>
+                <div class="gallery-modal-title">${title}</div>
+                <div class="gallery-modal-author">by ${esc(m.username || 'Unknown')}</div>
               </div>
               <div class="gallery-modal-image">
-                <img id="galleryImage" src="${src}" alt="${m.title || m.filename}" class="gallery-modal-img">
+                <img id="galleryImage" src="${esc(src)}" alt="${esc(m.title || m.filename)}" class="gallery-modal-img">
               </div>
               <div class="gallery-modal-footer">
-                <a href="${m.download}" download="${m.filename}" class="ui button gallery-modal-download">Download <i class="download icon"></i></a>
-                <div class="gallery-modal-type">Type: ${m.type || 'Unknown'}</div>
+                <a href="${esc(m.download)}" download="${esc(m.filename)}" class="ui button gallery-modal-download">Download <i class="download icon"></i></a>
+                <div class="gallery-modal-type">Type: ${esc(m.type || 'Unknown')}</div>
               </div>
             </div>
           `;

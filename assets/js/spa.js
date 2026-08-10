@@ -139,8 +139,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function route() {
         const match = location.hash.match(/^#type\/(.+)$/);
-        const type = match ? decodeURIComponent(match[1]) : null;
-        if (type && imagesByType[type]) {
+        let type = null;
+        if (match) {
+            // A hand-edited or truncated URL can contain a malformed escape
+            // ('#type/%'), which makes decodeURIComponent throw. Falling back to
+            // home beats leaving the page blank on an uncaught URIError.
+            try {
+                type = decodeURIComponent(match[1]);
+            } catch (e) {
+                type = null;
+            }
+        }
+        // Gate on the type being known, not on it having images, so a shared
+        // link to a now-empty type still renders its empty state.
+        if (type && types.includes(type)) {
             renderTypePage(type);
         } else {
             renderHome();

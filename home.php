@@ -4,27 +4,11 @@ session_start();
 
 $documents = json_decode(file_get_contents('documents.json'), true) ?: [];
 
-// Backfill image dimensions for entries uploaded before width/height were stored,
-// so the frontend can reserve space and avoid layout shift.
-$dimsDirty = false;
-foreach ($documents as &$doc) {
-    if ((empty($doc['width']) || empty($doc['height'])) && !empty($doc['source'])) {
-        $path = __DIR__ . '/uploads/' . $doc['source'];
-        if (file_exists($path)) {
-            $dims = @getimagesize($path);
-            if ($dims) {
-                $doc['width'] = $dims[0];
-                $doc['height'] = $dims[1];
-                $dimsDirty = true;
-            }
-        }
-    }
-}
-unset($doc);
-if ($dimsDirty && is_writable('documents.json')) {
-    file_put_contents('documents.json', json_encode($documents, JSON_PRETTY_PRINT));
-}
-
+// Entries uploaded before width/height were stored simply have no dimensions;
+// spa.js measures those client-side once the image loads. Backfilling them here
+// would turn every home page view into an unlocked read-modify-write of
+// documents.json, racing concurrent uploads and reorders — and it would re-scan
+// unfixable rows (missing or undecodable files) on every single request.
 $pageTitle = 'Home';
 include 'menu.php';
 
