@@ -2,13 +2,15 @@
 
 FROM php:8.3-apache
 
-# curl is for the healthcheck below; it is not in the base image. fileinfo,
-# which backs the MIME sniffing in Uploader, is bundled and enabled already —
-# re-installing it fails the build, so it is only verified here.
+# curl is for the healthcheck below; it is not in the base image. fileinfo
+# (MIME sniffing) and pdo_sqlite (storage) are bundled and enabled already —
+# re-installing them fails the build, so they are asserted here instead. A base
+# image that ever dropped one would fail this layer rather than every request.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* \
     && php -m | grep -q '^fileinfo$' \
+    && php -m | grep -q '^pdo_sqlite$' \
     && a2enmod rewrite headers
 
 # The document root is public/ only. src/, data/ and storage/ sit beside it and
