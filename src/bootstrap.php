@@ -21,7 +21,7 @@ define('UPLOAD_PATH', BASE_PATH . '/storage/uploads');
 define('MAX_UPLOAD_BYTES', (int) (getenv('MAX_UPLOAD_MB') ?: 50) * 1024 * 1024);
 
 require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/Storage.php';
+require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/FileTypes.php';
 require_once __DIR__ . '/Files.php';
 require_once __DIR__ . '/Users.php';
@@ -53,8 +53,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$storage  = new Storage(DATA_PATH . '/files.json');
-$users    = new Users(new Storage(DATA_PATH . '/users.json'));
-$files    = new Files($storage, UPLOAD_PATH);
+// One connection per request, shared by both repositories — separate handles
+// would each hold their own transaction and lock against each other.
+$db       = new Database(DATA_PATH . '/fileshare.sqlite');
+$users    = new Users($db);
+$files    = new Files($db, UPLOAD_PATH);
 $auth     = new Auth($users);
 $uploader = new Uploader($files, UPLOAD_PATH, MAX_UPLOAD_BYTES);
