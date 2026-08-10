@@ -136,6 +136,47 @@ code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR2" -c "$JAR2" -X POST "$BA
   -d "{\"action\":\"delete\",\"file_id\":\"$FILE_ID\"}")
 check "$code" "403" "another user cannot delete someone else's file"
 
+echo "== case-insensitive usernames =="
+JAR3="$(mktemp)"
+T3=$(curl -s -b "$JAR3" -c "$JAR3" "$BASE/register.php" | grep -o 'value="[a-f0-9]\{32,\}"' | head -1 | grep -o '[a-f0-9]\{32,\}')
+curl -s -b "$JAR3" -c "$JAR3" -X POST "$BASE/register.php" \
+  -d "_token=$T3" -d "username=TESTER" -d "password=hunter2hunter2" -d "password_confirm=hunter2hunter2" \
+  | grep -q "already taken" \
+  && ok "'TESTER' rejected as a duplicate of 'tester'" \
+  || bad "case-differing duplicate username was accepted"
+
+echo "== concurrent uploads =="
+# The flat-file version lost records here: each request read the whole file,
+# appended, and wrote it back, so overlapping writes clobbered each other.
+# Token fetched once, up front: the parallel requests below read the cookie jar
+# but must not write it, or 10 curls racing on the same file drop a session
+# cookie and the test measures curl rather than the server.
+CT=$(token upload.php)
+for i in $(seq 1 10); do
+  curl -s -o /dev/null -b "$JAR" -X POST "$BASE/upload.php" \
+    -F "_token=$CT" --form-string "title=concurrent-$i" \
+    -F "file=@$IMG;filename=c$i.png;type=image/png" &
+done
+wait
+body=$(curl -s -b "$JAR" -c "$JAR" "$BASE/browse.php")
+# Distinct titles, not matching lines: a card repeats its title in the heading,
+# the tooltip, and both action buttons.
+n=$(echo "$body" | grep -o 'concurrent-[0-9]\+' | sort -u | wc -l | tr -d ' ')
+check "$n" "10" "all 10 concurrent uploads stored"
+
+echo "== reorder =="
+mapfile -t IDS < <(curl -s -b "$JAR" -c "$JAR" "$BASE/profile.php" | grep -o 'data-file-id="[^"]*"' | cut -d'"' -f2)
+if [ "${#IDS[@]}" -ge 3 ]; then
+  T=$(curl -s -b "$JAR" -c "$JAR" "$BASE/browse.php" | grep -o 'CSRF_TOKEN = "[a-f0-9]*"' | grep -o '[a-f0-9]\{16,\}')
+  curl -s -o /dev/null -b "$JAR" -c "$JAR" -X POST "$BASE/api.php" \
+    -H "Content-Type: application/json" -H "X-CSRF-Token: $T" \
+    -d "{\"action\":\"reorder\",\"order\":[\"${IDS[2]}\",\"${IDS[0]}\",\"${IDS[1]}\"]}"
+  first=$(curl -s -b "$JAR" -c "$JAR" "$BASE/profile.php" | grep -o 'data-file-id="[^"]*"' | head -1 | cut -d'"' -f2)
+  check "$first" "${IDS[2]}" "reorder moved the third file to the front"
+else
+  bad "not enough files to test reorder"
+fi
+
 echo "== logout =="
 T=$(curl -s -b "$JAR" -c "$JAR" "$BASE/browse.php" | grep -o 'name="_token" value="[a-f0-9]*"' | grep -o '[a-f0-9]\{16,\}')
 code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" -X POST "$BASE/logout.php" -d "_token=$T")
