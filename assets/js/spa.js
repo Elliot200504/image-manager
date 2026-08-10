@@ -6,61 +6,64 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!mainContainer) return;
 
     // State
-    let currentView = 'home';
     let imagesByType = window.imagesByType || {};
     let typeCounts = window.typeCounts || {};
     let types = window.types || [];
     let top3types = window.top3types || [];
 
-    // Render Home (Top 3 Types + All Types)
-    function renderHome() {
-        mainContainer.innerHTML = `
-            <h2 class="ui header">Welcome${window.username ? ', ' + window.username : ''}!</h2>
-            <div class="ui segment">
-                <h3 class="ui header">Top 3 Types</h3>
-                <div class="ui three stackable cards" id="typeCards">
-                    ${top3types.length === 0 ? '<div class="ui message">No types found.</div>' :
-                        top3types.map(type => {
-                            const imgName = type.toLowerCase().replace(/[^a-z0-9]/g, '') + '.png';
-                            const imgSrc = `assets/images/${imgName}`;
-                            return `
-                                <div class="ui card type-card modern-card" data-type="${type}" style="cursor:pointer;">
-                                    <div class="image card-image-bg">
-                                        <img src="${imgSrc}" alt="Type ${type}" class="card-type-img" onerror="this.src='assets/images/placeholder.png'">
-                                        <div class="gallery-card-title card-title">${type}</div>
-                                    </div>
-                                    <div class="extra content card-content">
-                                        <div class="card-post-count">Posts: ${typeCounts[type] || 0}</div>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')
-                    }
-                </div>
-                <h3 class="ui header" style="margin-top:2em;">All Types</h3>
-                <div class="ui four stackable cards" id="allTypeCards">
-                    ${types.map(type => {
-                        const imgName = type.toLowerCase().replace(/[^a-z0-9]/g, '') + '.png';
-                        const imgSrc = `assets/images/${imgName}`;
-                        return `
-                            <div class="ui card type-card modern-card all-type-card" data-type="${type}" style="cursor:pointer;">
-                                <div class="image card-image-bg">
-                                    <img src="${imgSrc}" alt="Type ${type}" class="card-type-img" onerror="this.src='assets/images/placeholder.png'">
-                                    <div class="gallery-card-title card-title">${type}</div>
-                                </div>
-                                <div class="extra content card-content">
-                                    <div class="card-post-count">Posts: ${typeCounts[type] || 0}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
+    function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    function typeCardHtml(type) {
+        const imgName = type.toLowerCase().replace(/[^a-z0-9]/g, '') + '.png';
+        const imgSrc = `assets/images/${imgName}`;
+        const count = typeCounts[type] || 0;
+        return `
+            <div class="type-card" data-type="${escapeHtml(type)}" role="button" tabindex="0" aria-label="${escapeHtml(type)}, ${count} posts">
+                <img src="${imgSrc}" alt="${escapeHtml(type)}" onerror="this.src='assets/images/placeholder.png'">
+                <div class="type-card-overlay"></div>
+                <div class="type-card-info">
+                    <span class="type-card-name">${escapeHtml(type)}</span>
+                    <span class="type-card-count">${count} post${count === 1 ? '' : 's'}</span>
                 </div>
             </div>
         `;
-        // Add click handlers
+    }
+
+    // Render Home (Top 3 Types + All Types)
+    function renderHome() {
+        const totalPosts = Object.values(typeCounts).reduce((a, b) => a + b, 0);
+        mainContainer.innerHTML = `
+            <section class="page-hero">
+                <h1>Welcome${window.username ? ', ' + escapeHtml(window.username) : ''}!</h1>
+                <p>${totalPosts} image${totalPosts === 1 ? '' : 's'} across ${types.length} ${types.length === 1 ? 'category' : 'categories'}</p>
+            </section>
+            <section class="home-section">
+                <div class="section-heading">
+                    <h2>Top 3 Types</h2>
+                    <span class="section-sub">most posted categories</span>
+                </div>
+                ${top3types.length === 0
+                    ? '<div class="empty-state"><i class="images outline icon"></i>No types found yet — upload your first image!</div>'
+                    : `<div class="type-grid type-grid-featured">${top3types.map(typeCardHtml).join('')}</div>`
+                }
+            </section>
+            <section class="home-section">
+                <div class="section-heading">
+                    <h2>All Types</h2>
+                </div>
+                <div class="type-grid">${types.map(typeCardHtml).join('')}</div>
+            </section>
+        `;
+        // Add click + keyboard handlers
         mainContainer.querySelectorAll('.type-card').forEach(card => {
-            card.addEventListener('click', function() {
-                renderTypePage(this.getAttribute('data-type'));
+            const open = () => goToType(card.getAttribute('data-type'));
+            card.addEventListener('click', open);
+            card.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
             });
         });
     }
@@ -69,36 +72,84 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderTypePage(type) {
         const imgs = imagesByType[type] || [];
         mainContainer.innerHTML = `
-            <div class="ui segment">
-                <h3 class="ui header">Images for type: ${type}</h3>
-                <div class="image-grid">
-                    ${imgs.length === 0 ? '<div class="ui message">No posts made for this type.</div>' :
-                        imgs.map((img, idx) => `
-                            <div class="image-grid-item">
-                                <img src="uploads/${img.source}" alt="${img.title || img.filename}" class="post-img" data-idx="${idx}">
-                            </div>
-                        `).join('')
-                    }
-                </div>
-                <button class="ui button" id="backToTypesBtn" style="margin-top:1em;">Back to Types</button>
+            <div class="type-page-header">
+                <button class="back-btn" id="backToTypesBtn"><i class="arrow left icon"></i>All types</button>
+                <h2>${escapeHtml(type)}</h2>
+                <span class="count-chip">${imgs.length} post${imgs.length === 1 ? '' : 's'}</span>
             </div>
+            ${imgs.length === 0
+                ? '<div class="empty-state"><i class="image outline icon"></i>No posts made for this type yet.</div>'
+                : `<div class="photo-grid">
+                    ${imgs.map((img, idx) => {
+                        // Each card carries its true aspect ratio; the justified
+                        // grid derives the card's width from it, so rows share a
+                        // height and images are never cropped or distorted.
+                        const ratio = (img.width > 0 && img.height > 0) ? img.width / img.height : null;
+                        return `
+                        <figure class="photo-card${ratio ? '' : ' no-dims'}" data-idx="${idx}"${ratio ? ` style="--ratio:${ratio.toFixed(4)}"` : ''}>
+                            <img src="uploads/${img.source}" alt="${escapeHtml(img.title || img.filename)}" class="post-img" data-idx="${idx}" loading="lazy"${ratio ? ` width="${img.width}" height="${img.height}"` : ''}>
+                            <figcaption class="photo-card-caption">
+                                <div class="photo-card-title">${escapeHtml(img.title || img.filename)}</div>
+                                <div class="photo-card-author">by ${escapeHtml(img.username || 'Unknown')}</div>
+                            </figcaption>
+                        </figure>
+                        `;
+                    }).join('')}
+                </div>`
+            }
         `;
         // Attach gallery click handlers after rendering
         const metaArr = imgs.map(img => ({
             title: img.title,
             username: img.username,
+            type: img.type,
             download: 'uploads/' + img.source,
             filename: img.filename
         }));
-        mainContainer.querySelectorAll('.post-img').forEach(imgEl => {
-            imgEl.addEventListener('click', function() {
+        mainContainer.querySelectorAll('.photo-card').forEach(cardEl => {
+            cardEl.addEventListener('click', function() {
                 const idx = parseInt(this.getAttribute('data-idx'), 10);
                 window.imageGallery.open(imgs.map(i => 'uploads/' + i.source), idx, metaArr);
             });
         });
-        mainContainer.querySelector('#backToTypesBtn').addEventListener('click', renderHome);
+        // Images without stored dimensions: measure once loaded so the
+        // justified grid can size them correctly too.
+        mainContainer.querySelectorAll('.photo-card.no-dims .post-img').forEach(imgEl => {
+            const applyRatio = () => {
+                if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                    imgEl.closest('.photo-card').style.setProperty(
+                        '--ratio', (imgEl.naturalWidth / imgEl.naturalHeight).toFixed(4)
+                    );
+                }
+            };
+            imgEl.complete ? applyRatio() : imgEl.addEventListener('load', applyRatio);
+        });
+        mainContainer.querySelector('#backToTypesBtn').addEventListener('click', goHome);
     }
 
+    // Hash routing: '#type/<name>' renders a type page, anything else renders
+    // home. Keeps the browser back button working and makes views linkable.
+    function goToType(type) {
+        location.hash = 'type/' + encodeURIComponent(type);
+    }
+
+    function goHome() {
+        location.hash = '';
+    }
+
+    function route() {
+        const match = location.hash.match(/^#type\/(.+)$/);
+        const type = match ? decodeURIComponent(match[1]) : null;
+        if (type && imagesByType[type]) {
+            renderTypePage(type);
+        } else {
+            renderHome();
+        }
+        window.scrollTo(0, 0);
+    }
+
+    window.addEventListener('hashchange', route);
+
     // Initial render
-    renderHome();
+    route();
 });
