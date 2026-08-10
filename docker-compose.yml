@@ -1,0 +1,31 @@
+name: fileshare
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: fileshare:latest
+    container_name: fileshare
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      # The app's own ceiling. Must stay below post_max_size in docker/php.ini.
+      MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-50}"
+    volumes:
+      # Named volumes, not bind mounts: uploads and the JSON index have to
+      # survive `docker compose down` and image rebuilds. Bind-mounting the host
+      # would also re-introduce the www-data ownership problem the image solves.
+      - fileshare_data:/var/www/html/data
+      - fileshare_uploads:/var/www/html/storage/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/login.php"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  fileshare_data:
+  fileshare_uploads:
