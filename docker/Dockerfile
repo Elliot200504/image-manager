@@ -17,6 +17,9 @@ RUN apt-get update \
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 COPY docker/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
+
+# Server-config context only, so it cannot live in the vhost file.
+RUN printf '\nServerTokens Prod\n' >> /etc/apache2/apache2.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/99-fileshare.ini
 
 WORKDIR /var/www/html
