@@ -1,0 +1,15 @@
+.git
+.gitignore
+.claude
+
+# Runtime state. These are named volumes in the container; copying a host copy
+# into the image would bake stale uploads and accounts into it.
+data/
+storage/
+uploads/
+*.json
+!composer.json
+
+.env
+*.md
+!README.md
