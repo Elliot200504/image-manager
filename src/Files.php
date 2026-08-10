@@ -3,34 +3,16 @@
 declare(strict_types=1);
 
 /**
- * The file index in data/files.json, plus the bytes in storage/uploads.
+ * The file index, in SQLite.
  *
- * Records look like:
- *
- *   {
- *     "file_id":       "f_9a1c...",      // random, not sequential
- *     "owner":         "elliot",
- *     "stored_name":   "9a1c....jpg",    // the name on disk
- *     "original_name": "holiday snap.jpg",
- *     "title":         "Holiday snap",
- *     "extension":     "jpg",
- *     "mime":          "image/jpeg",
- *     "kind":          "image",
- *     "size":          482913,
- *     "width":         1920,             // images only
- *     "height":        1080,
- *     "position":      3,
- *     "uploaded_at":   1754812800
- *   }
- *
- * The old schema used `Bild_ID_<n>` — a sequential id derived from the array
- * count, which collided as soon as anything was deleted, and leaked how many
- * files existed. Ids are now random and opaque.
+ * The public API is unchanged from the JSON-backed version, so no page or
+ * frontend code needed touching — that separation is why persistence lives in
+ * its own class.
  */
 final class Files
 {
     public function __construct(
-        private readonly Storage $storage,
+        private readonly Database $db,
         private readonly string $uploadPath,
     ) {
     }
@@ -38,36 +20,36 @@ final class Files
     /** @return array<int, array<string, mixed>> */
     public function all(): array
     {
-        $files = $this->storage->read();
-        usort($files, static fn (array $a, array $b) => ($a['position'] ?? 0) <=> ($b['position'] ?? 0));
-
-        return $files;
+        return $this->db->pdo()
+            ->query('SELECT * FROM files ORDER BY position, file_id')
+            ->fetchAll();
     }
 
     /** @return array<int, array<string, mixed>> */
     public function forOwner(string $owner): array
     {
-        return array_values(array_filter(
-            $this->all(),
-            static fn (array $f) => ($f['owner'] ?? null) === $owner
-        ));
+        $stmt = $this->db->pdo()->prepare(
+            'SELECT * FROM files WHERE owner = ? ORDER BY position, file_id'
+        );
+        $stmt->execute([$owner]);
+
+        return $stmt->fetchAll();
     }
 
     /** @return array<string, mixed>|null */
     public function find(string $fileId): ?array
     {
-        foreach ($this->storage->read() as $file) {
-            if (($file['file_id'] ?? null) === $fileId) {
-                return $file;
-            }
-        }
+        $stmt = $this->db->pdo()->prepare('SELECT * FROM files WHERE file_id = ?');
+        $stmt->execute([$fileId]);
 
-        return null;
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
     }
 
     /**
      * All files grouped by kind, in FileTypes::KINDS order, skipping empty
-     * kinds so the browse page does not render headings for nothing.
+     * kinds so the browse page renders no heading for nothing.
      *
      * @return array<string, array<int, array<string, mixed>>>
      */
@@ -92,11 +74,13 @@ final class Files
     /** @return array<string, int> */
     public function countsByKind(): array
     {
-        $counts = [];
+        $rows = $this->db->pdo()
+            ->query('SELECT kind, COUNT(*) AS n FROM files GROUP BY kind')
+            ->fetchAll();
 
-        foreach ($this->all() as $file) {
-            $kind = $file['kind'] ?? FileTypes::KIND_OTHER;
-            $counts[$kind] = ($counts[$kind] ?? 0) + 1;
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['kind']] = (int) $row['n'];
         }
 
         return $counts;
@@ -104,84 +88,95 @@ final class Files
 
     public function totalSize(): int
     {
-        return array_sum(array_map(static fn (array $f) => (int) ($f['size'] ?? 0), $this->all()));
+        return (int) $this->db->pdo()
+            ->query('SELECT COALESCE(SUM(size), 0) FROM files')
+            ->fetchColumn();
     }
 
     /**
-     * Append a record. The position is assigned inside the lock, from the
-     * current maximum, so concurrent uploads cannot be handed the same slot.
+     * Insert a record, assigning the next position.
+     *
+     * The position is computed by the INSERT itself rather than read first and
+     * written second, so two concurrent uploads cannot be handed the same slot.
      *
      * @param array<string, mixed> $record
      * @return array<string, mixed> the stored record, with its position filled in
      */
     public function add(array $record): array
     {
-        return $this->storage->mutate(static function (array &$files) use ($record): array {
-            $maxPosition = 0;
-            foreach ($files as $file) {
-                $maxPosition = max($maxPosition, (int) ($file['position'] ?? 0));
-            }
+        $sql = 'INSERT INTO files (
+                    file_id, owner, stored_name, original_name, title,
+                    extension, mime, kind, size, width, height,
+                    position, uploaded_at
+                )
+                SELECT :file_id, :owner, :stored_name, :original_name, :title,
+                       :extension, :mime, :kind, :size, :width, :height,
+                       COALESCE(MAX(position), 0) + 1, :uploaded_at
+                FROM files';
 
-            $record['position'] = $maxPosition + 1;
-            $files[] = $record;
+        $stmt = $this->db->pdo()->prepare($sql);
+        $stmt->execute([
+            'file_id'       => $record['file_id'],
+            'owner'         => $record['owner'],
+            'stored_name'   => $record['stored_name'],
+            'original_name' => $record['original_name'],
+            'title'         => $record['title'],
+            'extension'     => $record['extension'],
+            'mime'          => $record['mime'],
+            'kind'          => $record['kind'],
+            'size'          => $record['size'],
+            'width'         => $record['width'],
+            'height'        => $record['height'],
+            'uploaded_at'   => $record['uploaded_at'],
+        ]);
 
-            return $record;
-        });
+        return $this->find((string) $record['file_id']) ?? $record;
     }
 
     /**
-     * Retitle a file. Only the owner may do so; returns false otherwise, which
-     * the caller turns into a 403.
+     * Retitle a file. The ownership test is part of the UPDATE, so there is no
+     * window between checking and writing.
      */
     public function rename(string $fileId, string $owner, string $title): bool
     {
-        return $this->storage->mutate(static function (array &$files) use ($fileId, $owner, $title): bool {
-            foreach ($files as &$file) {
-                if (($file['file_id'] ?? null) === $fileId) {
-                    // Ownership is re-checked here rather than trusting a check
-                    // the caller may have done against a stale read.
-                    if (($file['owner'] ?? null) !== $owner) {
-                        return false;
-                    }
-                    $file['title'] = $title;
+        $stmt = $this->db->pdo()->prepare(
+            'UPDATE files SET title = ? WHERE file_id = ? AND owner = ?'
+        );
+        $stmt->execute([$title, $fileId, $owner]);
 
-                    return true;
-                }
-            }
-            unset($file);
-
-            return false;
-        });
+        return $stmt->rowCount() > 0;
     }
 
     /**
-     * Delete a record and its bytes. The record goes first: an orphaned file on
-     * disk is harmless, whereas an index entry pointing at a deleted file would
-     * render as a broken tile.
+     * Delete a record and its bytes.
+     *
+     * The row goes first, inside a transaction: an orphaned file on disk is
+     * harmless, whereas a row pointing at deleted bytes renders as a broken
+     * tile. The unlink happens after commit so a rollback cannot leave the row
+     * present but the file gone.
      */
     public function delete(string $fileId, string $owner): bool
     {
-        $removed = $this->storage->mutate(static function (array &$files) use ($fileId, $owner): ?array {
-            foreach ($files as $index => $file) {
-                if (($file['file_id'] ?? null) === $fileId) {
-                    if (($file['owner'] ?? null) !== $owner) {
-                        return null;
-                    }
-                    unset($files[$index]);
-                    $files = array_values($files);
+        $removed = $this->db->transaction(function (PDO $pdo) use ($fileId, $owner): ?array {
+            $stmt = $pdo->prepare('SELECT * FROM files WHERE file_id = ? AND owner = ?');
+            $stmt->execute([$fileId, $owner]);
+            $row = $stmt->fetch();
 
-                    return $file;
-                }
+            if ($row === false) {
+                return null;
             }
 
-            return null;
+            $delete = $pdo->prepare('DELETE FROM files WHERE file_id = ? AND owner = ?');
+            $delete->execute([$fileId, $owner]);
+
+            return $delete->rowCount() > 0 ? $row : null;
         });
 
         if ($removed === null) {
             return false;
         }
 
-        $path = $this->pathFor($removed['stored_name'] ?? '');
+        $path = $this->pathFor((string) ($removed['stored_name'] ?? ''));
         if ($path !== null && is_file($path)) {
             @unlink($path);
         }
@@ -192,48 +187,45 @@ final class Files
     /**
      * Apply a new ordering.
      *
-     * Takes ids only. The old endpoint accepted whole records from the client
-     * and wrote them back, so a POST could rewrite any field — including
-     * `source`, repointing a record at someone else's file. Here the client can
-     * express nothing but an order, and ids it does not own are ignored.
+     * Takes ids only — the endpoint this descends from accepted whole records
+     * from the client and wrote them back, so a POST could rewrite any field.
+     * The owner predicate means ids the caller does not own update nothing.
      *
      * @param string[] $orderedIds
      */
     public function reorder(array $orderedIds, string $owner): void
     {
-        $this->storage->mutate(static function (array &$files) use ($orderedIds, $owner): void {
-            $rank = [];
-            foreach (array_values($orderedIds) as $index => $id) {
-                if (is_string($id)) {
-                    $rank[$id] = $index;
-                }
+        $this->db->transaction(function (PDO $pdo) use ($orderedIds, $owner): void {
+            $stmt = $pdo->prepare(
+                'UPDATE files SET position = ? WHERE file_id = ? AND owner = ?'
+            );
+
+            $position = 0;
+            foreach ($orderedIds as $fileId) {
+                $stmt->execute([++$position, $fileId, $owner]);
             }
 
-            // Files the request did not mention keep their relative order after
-            // the ones it did.
-            $offset = count($rank);
-            foreach ($files as &$file) {
-                if (($file['owner'] ?? null) !== $owner) {
-                    continue;
-                }
-                $id = $file['file_id'] ?? '';
-                if (isset($rank[$id])) {
-                    $file['position'] = $rank[$id] + 1;
-                } else {
-                    $file['position'] = ++$offset;
-                }
+            // Anything the request did not mention keeps its relative order,
+            // after the rows it did.
+            $rest = $pdo->prepare(
+                'UPDATE files SET position = position + :offset
+                 WHERE owner = :owner AND file_id NOT IN (' . $this->placeholders(count($orderedIds)) . ')'
+            );
+
+            $params = ['offset' => $position, 'owner' => $owner];
+            foreach (array_values($orderedIds) as $i => $fileId) {
+                $params['id' . $i] = $fileId;
             }
-            unset($file);
+            $rest->execute($params);
         });
     }
 
     /**
-     * Absolute path for a stored name, or null if the name is not one we could
+     * Absolute path for a stored name, or null if it is not a name we could
      * have written.
      *
-     * The index is a file on disk; if it were ever tampered with, a `stored_name`
-     * of "../../etc/passwd" would otherwise become a readable download. The
-     * pattern below admits only the names generated at upload time.
+     * Defence in depth: if a row were ever tampered with, a stored_name of
+     * "../../etc/passwd" would otherwise become a readable download.
      */
     public function pathFor(string $storedName): ?string
     {
@@ -242,5 +234,18 @@ final class Files
         }
 
         return $this->uploadPath . '/' . $storedName;
+    }
+
+    /** Named placeholders for a NOT IN list; ':id0, :id1, …' (or NULL if empty). */
+    private function placeholders(int $count): string
+    {
+        if ($count === 0) {
+            // "NOT IN (NULL)" is never true, which would skip every row — but
+            // with no ids given there is nothing to push down, so an
+            // always-false predicate is exactly right.
+            return 'NULL';
+        }
+
+        return implode(', ', array_map(static fn (int $i) => ':id' . $i, range(0, $count - 1)));
     }
 }
