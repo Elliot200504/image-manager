@@ -66,11 +66,14 @@ final class Csrf
             return;
         }
 
+        // 403, not 419: 419 is unassigned in the HTTP registry, and Apache
+        // rewrites an unknown status into a 500 — which reports a server fault
+        // for what is really a rejected request.
         if ($json) {
-            json_response(['ok' => false, 'error' => 'Invalid or expired session token.'], 419);
+            json_response(['ok' => false, 'error' => 'Invalid or expired session token.'], 403);
         }
 
-        http_response_code(419);
+        http_response_code(403);
         exit('Invalid or expired session token. Go back, reload the page, and try again.');
     }
 }
