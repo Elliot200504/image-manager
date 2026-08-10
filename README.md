@@ -93,4 +93,16 @@ inline from our own origin would be stored XSS.
 - Any logged-in user can view and download any file. There is no per-file
   visibility; ownership only governs rename, delete, and reorder.
 - No rate limiting on login, so passwords are only as good as the ones chosen.
-- No test suite. `php -l` is the only automated check.
+- No unit tests. `tests/smoke.sh` is an end-to-end check against a running
+  stack, and `php -l` is the only static one.
+
+## Testing
+
+```bash
+docker compose up --build -d
+./tests/smoke.sh
+```
+
+24 checks through the real HTTP stack. It registers throwaway accounts and
+uploads into the attached volume, so point it at a scratch stack;
+`docker compose down -v` resets state between runs.
